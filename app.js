@@ -10,7 +10,8 @@ const groupDirections = {
   "Reference Redos": "Compare the core character silhouette, face, outfit language, and cover-read appeal.",
   "Bold Style Explorations": "Use this as a style-range check for linework, color, texture, and world tone.",
   "Cute-Sexy Style Anchors": "Judge whether this balances charm, confidence, softness, and memorable lead-character appeal.",
-  "Cute-Sexy Scene Variations": "Review how the character and companion read in a story moment with clear setting and mood."
+  "Cute-Sexy Scene Variations": "Review how the character and companion read in a story moment with clear setting and mood.",
+  "Exploring Risograph Punk Comic Style": "Explore this risograph-punk lane for character variety, palette range, attitude, hairstyles, outfits, and story-world potential."
 };
 
 const fallbackManifest = withDirections([
@@ -40,7 +41,15 @@ const fallbackManifest = withDirections([
   {"file":"assets/images/24-roxy_vega_07_space_mechanic.png","title":"Space Mechanic","group":"Cute-Sexy Scene Variations","rating":0,"notes":""},
   {"file":"assets/images/25-roxy_vega_08_alien_garden.png","title":"Alien Garden","group":"Cute-Sexy Scene Variations","rating":0,"notes":""},
   {"file":"assets/images/26-roxy_vega_09_bounty_poster_chase.png","title":"Bounty Poster Chase","group":"Cute-Sexy Scene Variations","rating":0,"notes":""},
-  {"file":"assets/images/27-roxy_vega_10_first_issue_hero.png","title":"First Issue Hero","group":"Cute-Sexy Scene Variations","rating":0,"notes":""}
+  {"file":"assets/images/27-roxy_vega_10_first_issue_hero.png","title":"First Issue Hero","group":"Cute-Sexy Scene Variations","rating":0,"notes":""},
+  {"file":"assets/images/28-risograph_punk_01_starport_mechanic.png","title":"Starport Mechanic","group":"Exploring Risograph Punk Comic Style","rating":0,"notes":""},
+  {"file":"assets/images/29-risograph_punk_02_moon_lounge_singer.png","title":"Moon Lounge Singer","group":"Exploring Risograph Punk Comic Style","rating":0,"notes":""},
+  {"file":"assets/images/30-risograph_punk_03_neon_bounty_hunter.png","title":"Neon Bounty Hunter","group":"Exploring Risograph Punk Comic Style","rating":0,"notes":""},
+  {"file":"assets/images/31-risograph_punk_04_astrologer_pilot.png","title":"Astrologer Pilot","group":"Exploring Risograph Punk Comic Style","rating":0,"notes":""},
+  {"file":"assets/images/32-risograph_punk_05_alien_drag_racer.png","title":"Alien Drag Racer","group":"Exploring Risograph Punk Comic Style","rating":0,"notes":""},
+  {"file":"assets/images/33-risograph_punk_06_space_witch_dj.png","title":"Space Witch DJ","group":"Exploring Risograph Punk Comic Style","rating":0,"notes":""},
+  {"file":"assets/images/34-risograph_punk_07_galactic_surfer.png","title":"Galactic Surfer","group":"Exploring Risograph Punk Comic Style","rating":0,"notes":""},
+  {"file":"assets/images/35-risograph_punk_08_rocket_courier.png","title":"Rocket Courier","group":"Exploring Risograph Punk Comic Style","rating":0,"notes":""}
 ]);
 
 const board = document.querySelector("#gallery-board");
