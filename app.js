@@ -313,7 +313,7 @@ function createCard(item) {
   downloadLink.addEventListener("click", (event) => event.stopPropagation());
 
   const ratingRow = document.createElement("div");
-  ratingRow.className = "rating-row";
+  ratingRow.className = `rating-row${review.rating ? "" : " unrated"}`;
   ratingRow.setAttribute("aria-label", `Rating for ${item.title}`);
 
   for (let rating = 1; rating <= 5; rating += 1) {
@@ -332,7 +332,11 @@ function createCard(item) {
   clearButton.type = "button";
   clearButton.textContent = "Unrate";
   clearButton.addEventListener("click", () => updateRating(item.file, 0));
-  ratingRow.append(clearButton);
+
+  const unratedLabel = document.createElement("span");
+  unratedLabel.className = "unrated-label";
+  unratedLabel.textContent = "Unrated";
+  ratingRow.append(clearButton, unratedLabel);
 
   const thread = createImageNoteThread(item, review);
   body.append(downloadLink, ratingRow, thread);

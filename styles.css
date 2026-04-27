@@ -923,15 +923,56 @@ h3 {
 .star-button {
   width: 34px;
   padding: 0;
+  border-color: rgba(111, 98, 106, 0.22);
+  background: rgba(255, 253, 250, 0.7);
+  color: rgba(111, 98, 106, 0.38);
+  text-shadow: none;
+}
+
+.rating-row.unrated .star-button {
+  border-style: dashed;
+  background: rgba(255, 253, 250, 0.52);
+  color: rgba(111, 98, 106, 0.28);
+}
+
+.star-button:hover,
+.star-button:focus {
+  border-color: rgba(245, 184, 75, 0.72);
   color: #9d7f31;
 }
 
 .star-button.active {
-  color: #fff4c7;
+  border-color: rgba(157, 127, 49, 0.62);
+  background: linear-gradient(135deg, #f9d36c, #f5a94b);
+  color: #2d1727;
+  box-shadow: 0 6px 16px rgba(245, 184, 75, 0.22);
 }
 
 .clear-rating {
   color: var(--muted);
+}
+
+.unrated-label {
+  display: none;
+  padding: 5px 9px;
+  border: 1px dashed rgba(111, 98, 106, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 253, 250, 0.58);
+  color: rgba(111, 98, 106, 0.82);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rating-row.unrated .clear-rating {
+  display: none;
+}
+
+.rating-row.unrated .unrated-label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
 }
 
 .download-link {
