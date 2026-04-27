@@ -178,7 +178,9 @@ function render() {
 }
 
 function renderMasterPanel() {
-  renderNoteThread(masterNotesList, boardState.masterNotes, "No master notes saved yet.");
+  renderNoteThread(masterNotesList, boardState.masterNotes, "No master notes saved yet.", {
+    onDelete: deleteMasterNote
+  });
   referenceList.innerHTML = "";
   if (!boardState.references.length) {
     const empty = document.createElement("p");
@@ -344,7 +346,9 @@ function createImageNoteThread(item, review) {
 
   const list = document.createElement("div");
   list.className = "note-thread";
-  renderNoteThread(list, getDisplayNotes(review), "No notes saved for this image.");
+  renderNoteThread(list, getDisplayNotes(review), "No notes saved for this image.", {
+    onDelete: (note) => deleteImageNote(item.file, note.id)
+  });
 
   const addButton = document.createElement("button");
   addButton.className = "secondary-action";
@@ -388,7 +392,7 @@ function createImageNoteThread(item, review) {
   return wrap;
 }
 
-function renderNoteThread(container, notes, emptyText) {
+function renderNoteThread(container, notes, emptyText, options = {}) {
   container.innerHTML = "";
   const visibleNotes = getSortedByCreatedAt(notes).filter((note) => note.text.trim());
   if (!visibleNotes.length) {
@@ -402,13 +406,27 @@ function renderNoteThread(container, notes, emptyText) {
   visibleNotes.forEach((note) => {
     const entry = document.createElement("article");
     entry.className = "note-entry";
-    entry.innerHTML = `
+    const header = document.createElement("div");
+    header.className = "note-entry-header";
+    header.innerHTML = `
       <div class="note-meta">
         <span>${escapeHtml(getNoteAuthor(note))}</span>
         <time datetime="${escapeAttribute(note.createdAt)}">${escapeHtml(formatDate(note.createdAt))}</time>
       </div>
-      <p>${escapeHtml(note.text)}</p>
     `;
+    if (typeof options.onDelete === "function") {
+      const deleteButton = document.createElement("button");
+      deleteButton.className = "note-delete-button";
+      deleteButton.type = "button";
+      deleteButton.textContent = "X";
+      deleteButton.title = "Delete note";
+      deleteButton.setAttribute("aria-label", `Delete note from ${getNoteAuthor(note)}`);
+      deleteButton.addEventListener("click", () => options.onDelete(note));
+      header.append(deleteButton);
+    }
+    const text = document.createElement("p");
+    text.textContent = note.text;
+    entry.append(header, text);
     container.append(entry);
   });
 }
@@ -445,6 +463,32 @@ function appendImageNote(file, from, text) {
     noteThread: mergeById(current.noteThread, [note]),
     updatedAt: note.createdAt
   };
+  saveBoardState();
+  render();
+  saveFullBoardToCloud();
+}
+
+function deleteMasterNote(noteId) {
+  boardState.masterNotes = boardState.masterNotes.filter((note) => note.id !== noteId);
+  saveBoardState();
+  render();
+  saveFullBoardToCloud();
+}
+
+function deleteImageNote(file, noteId) {
+  const item = manifest.find((entry) => entry.file === file);
+  if (!item) return;
+  const id = String(noteId || "");
+  const current = getReview(item);
+  const nextThread = current.noteThread.filter((note) => note.id !== id);
+  const nextNotes = id.startsWith("legacy-") ? "" : current.notes;
+  boardState.reviews[file] = cleanReview({
+    ...current,
+    notes: nextNotes,
+    noteThread: nextThread,
+    updatedAt: new Date().toISOString()
+  });
+  boardState.reviews = filterReviewState(boardState.reviews);
   saveBoardState();
   render();
   saveFullBoardToCloud();
@@ -643,6 +687,7 @@ async function saveFullBoardToCloud() {
 
 function toCloudBoard(state) {
   return {
+    action: "replaceBoard",
     reviews: state.reviews,
     masterNotes: state.masterNotes,
     references: state.references,

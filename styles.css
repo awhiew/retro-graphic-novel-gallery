@@ -626,6 +626,14 @@ h3 {
   box-shadow: 0 8px 24px rgba(56, 32, 52, 0.08);
 }
 
+.note-entry-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px;
+  gap: 8px;
+  align-items: start;
+  min-width: 0;
+}
+
 .note-meta,
 .note-entry time,
 .reference-item time,
@@ -654,6 +662,28 @@ h3 {
 
 .note-meta time::before {
   content: "· ";
+}
+
+.note-delete-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(216, 79, 138, 0.24);
+  border-radius: 999px;
+  background: rgba(255, 253, 250, 0.86);
+  color: var(--plum);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.note-delete-button:hover,
+.note-delete-button:focus {
+  border-color: rgba(216, 79, 138, 0.5);
+  background: rgba(255, 237, 247, 0.94);
 }
 
 .note-entry p,
@@ -917,6 +947,7 @@ h3 {
 .clear-rating:focus,
 .primary-action:focus,
 .secondary-action:focus,
+.note-delete-button:focus,
 .file-picker:focus,
 .download-link:focus,
 .image-button:focus,

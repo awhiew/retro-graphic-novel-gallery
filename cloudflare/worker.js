@@ -31,9 +31,10 @@ export default {
         const body = await parseBody(request);
         const board = await readBoard(env);
         const now = new Date().toISOString();
+        const replacesBoard = body.action === "replaceBoard";
 
         applyPostBody(board, body, now);
-        board.updatedAt = now;
+        if (!replacesBoard || !board.updatedAt) board.updatedAt = now;
         board.reviews = pruneReviews(board.reviews);
         await writeBoard(env, board);
         return jsonResponse(200, serializeBoard(board));
@@ -80,6 +81,20 @@ function applyPostBody(board, body, now) {
 }
 
 function applyAction(board, body, now) {
+  if (body.action === "replaceBoard") {
+    const replacement = normalizeBoard({
+      reviews: body.reviews || {},
+      masterNotes: body.masterNotes || [],
+      references: body.references || [],
+      updatedAt: isIsoDate(body.updatedAt) ? body.updatedAt : now
+    });
+    board.reviews = replacement.reviews;
+    board.masterNotes = replacement.masterNotes;
+    board.references = replacement.references;
+    board.updatedAt = replacement.updatedAt;
+    return;
+  }
+
   if (body.action === "appendMasterNote") {
     const note = normalizeNote(body.note || {
       id: body.id,
