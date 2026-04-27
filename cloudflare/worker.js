@@ -126,6 +126,28 @@ function applyAction(board, body, now) {
     return;
   }
 
+  if (body.action === "deleteMasterNote") {
+    const id = String(body.id || "").slice(0, 120);
+    if (!id) throw new Error("Invalid master note id");
+    board.masterNotes = board.masterNotes.filter((note) => note.id !== id);
+    return;
+  }
+
+  if (body.action === "deleteImageNote") {
+    const file = String(body.file || "");
+    const id = String(body.id || "").slice(0, 120);
+    if (!isSafeImagePath(file)) throw new Error("Invalid image file path");
+    if (!id) throw new Error("Invalid image note id");
+    const current = board.reviews[file] || emptyReview();
+    board.reviews[file] = {
+      ...current,
+      notes: id.startsWith("legacy-") ? "" : current.notes,
+      noteThread: current.noteThread.filter((note) => note.id !== id),
+      updatedAt: now
+    };
+    return;
+  }
+
   if (body.action === "updateRating") {
     const file = String(body.file || "");
     if (!isSafeImagePath(file)) throw new Error("Invalid image file path");

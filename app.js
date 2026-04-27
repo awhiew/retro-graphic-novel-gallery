@@ -187,19 +187,31 @@ function setupFromPicker(scope) {
   if (!picker) return;
   const input = picker.querySelector("input");
   const choices = [...picker.querySelectorAll("[data-from]")];
-  const updateActive = () => {
-    const value = String(input.value || "").trim();
-    choices.forEach((button) => button.classList.toggle("active", button.dataset.from === value));
-  };
+  if (input && !input.value) input.value = "Andrew";
   choices.forEach((button) => {
     button.addEventListener("click", () => {
       input.value = button.dataset.from || "";
-      updateActive();
+      updateFromPickerActive(picker);
       input.dispatchEvent(new Event("input", { bubbles: true }));
     });
   });
-  input.addEventListener("input", updateActive);
-  updateActive();
+  input.addEventListener("input", () => updateFromPickerActive(picker));
+  updateFromPickerActive(picker);
+}
+
+function setFromPickerValue(scope, value) {
+  const picker = scope.querySelector("[data-from-picker]");
+  if (!picker) return;
+  const input = picker.querySelector("input");
+  if (input) input.value = value;
+  updateFromPickerActive(picker);
+}
+
+function updateFromPickerActive(picker) {
+  const input = picker.querySelector("input");
+  const choices = [...picker.querySelectorAll("[data-from]")];
+  const value = String(input?.value || "").trim();
+  choices.forEach((button) => button.classList.toggle("active", button.dataset.from === value));
 }
 
 function render() {
@@ -399,7 +411,7 @@ function createImageNoteThread(item, review) {
     <div class="from-picker" data-from-picker>
       <button class="from-choice" type="button" data-from="Andrew">Andrew</button>
       <button class="from-choice" type="button" data-from="Hannah">Hannah</button>
-      <input id="note-from-${escapeAttribute(slugId(item.file))}" type="text" maxlength="80" placeholder="Other name" autocomplete="name" required>
+      <input id="note-from-${escapeAttribute(slugId(item.file))}" type="hidden" value="Andrew">
     </div>
     <label for="note-${escapeAttribute(slugId(item.file))}">New note</label>
     <textarea id="note-${escapeAttribute(slugId(item.file))}" maxlength="${maxNotesLength}" placeholder="Save a note for Andrew and Hannah" required></textarea>
@@ -416,10 +428,10 @@ function createImageNoteThread(item, review) {
   addButton.addEventListener("click", () => {
     addButton.hidden = true;
     form.hidden = false;
-    fromInput.focus();
+    textarea.focus();
   });
   cancelButton.addEventListener("click", () => {
-    fromInput.value = "";
+    setFromPickerValue(form, "Andrew");
     textarea.value = "";
     form.hidden = true;
     addButton.hidden = false;
@@ -476,9 +488,9 @@ function showMasterNoteForm(show) {
   masterNoteForm.hidden = !show;
   masterNoteButton.hidden = show;
   if (show) {
-    masterNoteFrom.focus();
+    masterNoteText.focus();
   } else {
-    masterNoteFrom.value = "";
+    setFromPickerValue(masterNoteForm, "Andrew");
     masterNoteText.value = "";
   }
 }
@@ -509,18 +521,27 @@ function appendImageNote(file, from, text) {
   saveFullBoardToCloud();
 }
 
-function deleteMasterNote(noteId) {
+async function deleteMasterNote(noteId) {
+  const previousMasterNotes = boardState.masterNotes;
   boardState.masterNotes = boardState.masterNotes.filter((note) => note.id !== noteId);
   saveBoardState();
   render();
-  saveFullBoardToCloud();
+  try {
+    await saveDeleteActionToCloud({ action: "deleteMasterNote", id: noteId });
+  } catch (error) {
+    boardState.masterNotes = previousMasterNotes;
+    saveBoardState();
+    render();
+    setCloudStatus("Saving failed");
+  }
 }
 
-function deleteImageNote(file, noteId) {
+async function deleteImageNote(file, noteId) {
   const item = manifest.find((entry) => entry.file === file);
   if (!item) return;
   const id = String(noteId || "");
   const current = getReview(item);
+  const previousReview = boardState.reviews[file] ? { ...boardState.reviews[file] } : null;
   const nextThread = current.noteThread.filter((note) => note.id !== id);
   const nextNotes = id.startsWith("legacy-") ? "" : current.notes;
   boardState.reviews[file] = cleanReview({
@@ -532,7 +553,18 @@ function deleteImageNote(file, noteId) {
   boardState.reviews = filterReviewState(boardState.reviews);
   saveBoardState();
   render();
-  saveFullBoardToCloud();
+  try {
+    await saveDeleteActionToCloud({ action: "deleteImageNote", file, id });
+  } catch (error) {
+    if (previousReview) {
+      boardState.reviews[file] = previousReview;
+    } else {
+      delete boardState.reviews[file];
+    }
+    saveBoardState();
+    render();
+    setCloudStatus("Saving failed");
+  }
 }
 
 function updateRating(file, rating) {
@@ -724,6 +756,21 @@ async function saveFullBoardToCloud() {
   } catch (error) {
     setCloudStatus("Cloud unavailable");
   }
+}
+
+async function saveDeleteActionToCloud(payload) {
+  setCloudStatus("Saving");
+  const response = await fetch(reviewEndpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+  if (!response.ok) throw new Error(`Delete returned ${response.status}`);
+  const data = await response.json();
+  mergeCloudBoard(normalizeBoardState(data));
+  saveBoardState();
+  render();
+  setCloudStatus("Cloud saved");
 }
 
 function toCloudBoard(state) {

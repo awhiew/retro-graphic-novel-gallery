@@ -613,7 +613,7 @@ h3 {
 
 .from-picker {
   display: grid;
-  grid-template-columns: repeat(2, minmax(90px, max-content)) minmax(150px, 1fr);
+  grid-template-columns: repeat(2, minmax(90px, max-content));
   gap: 8px;
   align-items: center;
   min-width: 0;
@@ -639,10 +639,6 @@ h3 {
   border-color: var(--plum);
   background: var(--plum);
   color: #fffaf7;
-}
-
-.from-picker input {
-  min-width: 0;
 }
 
 .form-actions {
@@ -1139,10 +1135,6 @@ h3 {
 @media (max-width: 520px) {
   .from-picker {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .from-picker input {
-    grid-column: 1 / -1;
   }
 }
 
