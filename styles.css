@@ -834,7 +834,18 @@ h3 {
   box-shadow: 0 8px 22px rgba(56, 32, 52, 0.08);
 }
 
-.reference-item img {
+.reference-preview-button {
+  display: block;
+  width: 74px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.reference-preview-button img {
+  display: block;
   width: 74px;
   aspect-ratio: 1;
   object-fit: cover;
@@ -842,16 +853,29 @@ h3 {
   background: #211620;
 }
 
-.reference-item div {
+.reference-meta {
   display: grid;
   gap: 3px;
   min-width: 0;
 }
 
-.reference-item strong,
-.reference-item span {
+.reference-meta strong,
+.reference-meta span {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.reference-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.reference-download-link {
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .reference-delete-button {
@@ -1098,6 +1122,7 @@ h3 {
 .file-picker:focus,
 .download-link:focus,
 .image-button:focus,
+.reference-preview-button:focus,
 .lightbox-close:focus {
   outline: 3px solid rgba(127, 201, 189, 0.45);
   outline-offset: 2px;

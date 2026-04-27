@@ -264,7 +264,40 @@ function renderMasterPanel() {
   getSortedByCreatedAt(boardState.references).forEach((reference) => {
     const item = document.createElement("article");
     item.className = "reference-item";
-    const caption = reference.caption || reference.name;
+    const caption = getReferenceCaption(reference);
+    const previewButton = document.createElement("button");
+    previewButton.className = "reference-preview-button";
+    previewButton.type = "button";
+    previewButton.setAttribute("aria-label", `Open reference preview: ${caption}`);
+    previewButton.innerHTML = `<img src="${escapeAttribute(reference.dataUrl)}" alt="${escapeAttribute(caption)}" loading="lazy">`;
+    previewButton.addEventListener("click", () => {
+      openLightboxSource({
+        src: reference.dataUrl,
+        alt: caption,
+        caption: `${caption} · Uploaded reference`
+      });
+    });
+
+    const details = document.createElement("div");
+    details.className = "reference-meta";
+    details.innerHTML = `
+      <strong>${escapeHtml(caption)}</strong>
+      <time datetime="${escapeAttribute(reference.createdAt)}">${escapeHtml(formatDate(reference.createdAt))}</time>
+      <span>${escapeHtml(reference.name)}</span>
+    `;
+
+    const actions = document.createElement("div");
+    actions.className = "reference-actions";
+    const downloadLink = document.createElement("a");
+    downloadLink.className = "download-link reference-download-link";
+    downloadLink.href = reference.dataUrl;
+    downloadLink.download = getReferenceDownloadFilename(reference);
+    downloadLink.textContent = "Download";
+    downloadLink.setAttribute("aria-label", `Download reference: ${caption}`);
+    downloadLink.addEventListener("click", (event) => event.stopPropagation());
+    actions.append(downloadLink);
+    details.append(actions);
+
     const deleteButton = document.createElement("button");
     deleteButton.className = "reference-delete-button";
     deleteButton.type = "button";
@@ -274,15 +307,7 @@ function renderMasterPanel() {
       event.stopPropagation();
       deleteReference(reference.id);
     });
-    item.innerHTML = `
-      <img src="${escapeAttribute(reference.dataUrl)}" alt="${escapeAttribute(caption)}" loading="lazy">
-      <div>
-        <strong>${escapeHtml(caption)}</strong>
-        <time datetime="${escapeAttribute(reference.createdAt)}">${escapeHtml(formatDate(reference.createdAt))}</time>
-        <span>${escapeHtml(reference.name)}</span>
-      </div>
-    `;
-    item.append(deleteButton);
+    item.append(previewButton, details, deleteButton);
     referenceList.append(item);
   });
 }
@@ -826,6 +851,51 @@ function getDownloadFilename(item) {
   return `${prefix}${slug || "image"}${extension || ".png"}`;
 }
 
+function getReferenceDownloadFilename(reference) {
+  const extension = getReferenceFileExtension(reference);
+  return createSafeDownloadFilename(reference.caption || reference.name, extension, "reference-image");
+}
+
+function getReferenceFileExtension(reference) {
+  const name = String(reference?.name || "");
+  const extensionMatch = name.match(/\.([a-z0-9]{2,8})$/i);
+  if (extensionMatch) return `.${extensionMatch[1].toLowerCase()}`;
+
+  const mimeMatch = String(reference?.dataUrl || "").match(/^data:image\/([a-z0-9.+-]+);base64,/i);
+  const mimeSubtype = (mimeMatch && mimeMatch[1] ? mimeMatch[1].toLowerCase() : "").split(";")[0];
+  const mimeMap = {
+    jpeg: ".jpg",
+    jpg: ".jpg",
+    pjpeg: ".jpg",
+    png: ".png",
+    gif: ".gif",
+    webp: ".webp",
+    avif: ".avif",
+    bmp: ".bmp",
+    "svg+xml": ".svg",
+    "x-icon": ".ico",
+    "vnd.microsoft.icon": ".ico",
+    tiff: ".tiff"
+  };
+  return mimeMap[mimeSubtype] || ".png";
+}
+
+function createSafeDownloadFilename(value, extension, fallbackName) {
+  const slug = String(value || "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  const fallbackSlug = String(fallbackName || "image")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "image";
+  const safeExtension = /^\.[a-z0-9]{2,8}$/i.test(String(extension || ""))
+    ? String(extension).toLowerCase()
+    : ".png";
+  return `${slug || fallbackSlug}${safeExtension}`;
+}
+
 function getReview(item) {
   const saved = boardState.reviews[item.file] || {};
   return cleanReview({
@@ -1204,9 +1274,19 @@ function getDisplayTitle(item) {
 
 function openLightbox(item) {
   const displayTitle = getDisplayTitle(item);
-  lightboxImage.src = item.file;
-  lightboxImage.alt = displayTitle;
-  lightboxCaption.textContent = `${displayTitle} · ${item.group}`;
+  openLightboxSource({
+    src: item.file,
+    alt: displayTitle,
+    caption: `${displayTitle} · ${item.group}`
+  });
+}
+
+function openLightboxSource({ src, alt, caption }) {
+  const imageSrc = String(src || "").trim();
+  if (!imageSrc) return;
+  lightboxImage.src = imageSrc;
+  lightboxImage.alt = String(alt || "");
+  lightboxCaption.textContent = String(caption || "");
   lightbox.hidden = false;
   document.body.style.overflow = "hidden";
   lightboxClose.focus();
@@ -1215,7 +1295,13 @@ function openLightbox(item) {
 function closeLightbox() {
   lightbox.hidden = true;
   lightboxImage.src = "";
+  lightboxImage.alt = "";
+  lightboxCaption.textContent = "";
   document.body.style.overflow = "";
+}
+
+function getReferenceCaption(reference) {
+  return String(reference?.caption || reference?.name || "Reference image").trim().slice(0, 180) || "Reference image";
 }
 
 function formatDate(value) {
