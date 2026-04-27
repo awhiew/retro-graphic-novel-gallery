@@ -35,6 +35,7 @@ export default {
 
         applyPostBody(board, body, now);
         if (!replacesBoard || !board.updatedAt) board.updatedAt = now;
+        applyTombstones(board);
         board.reviews = pruneReviews(board.reviews);
         await writeBoard(env, board);
         return jsonResponse(200, serializeBoard(board));
@@ -54,7 +55,7 @@ function applyPostBody(board, body, now) {
   }
 
   if (body.reviews && typeof body.reviews === "object" && !Array.isArray(body.reviews)) {
-    mergeReviews(board.reviews, normalizeStoredReviews(body.reviews), now);
+    mergeReviews(board.reviews, normalizeStoredReviews(body.reviews), now, board);
   }
 
   if (Array.isArray(body.masterNotes)) {
@@ -72,7 +73,7 @@ function applyPostBody(board, body, now) {
         notes: body.notes,
         updatedAt: body.updatedAt
       }
-    }), now);
+    }), now, board);
   }
 
   if (!body.reviews && !Array.isArray(body.masterNotes) && !Array.isArray(body.references) && !body.file) {
@@ -86,11 +87,21 @@ function applyAction(board, body, now) {
       reviews: body.reviews || {},
       masterNotes: body.masterNotes || [],
       references: body.references || [],
+      deletedNoteIds: body.deletedNoteIds || {},
+      clearedRatings: body.clearedRatings || {},
       updatedAt: isIsoDate(body.updatedAt) ? body.updatedAt : now
     });
     board.reviews = replacement.reviews;
     board.masterNotes = replacement.masterNotes;
     board.references = replacement.references;
+    board.deletedNoteIds = {
+      ...board.deletedNoteIds,
+      ...replacement.deletedNoteIds
+    };
+    board.clearedRatings = {
+      ...board.clearedRatings,
+      ...replacement.clearedRatings
+    };
     board.updatedAt = replacement.updatedAt;
     return;
   }
@@ -139,6 +150,8 @@ function applyAction(board, body, now) {
     if (!isSafeImagePath(file)) throw new Error("Invalid image file path");
     if (!id) throw new Error("Invalid image note id");
     const current = board.reviews[file] || emptyReview();
+    board.deletedNoteIds[id] = now;
+    removeDeletedNoteId(board.reviews, id);
     board.reviews[file] = {
       ...current,
       notes: id.startsWith("legacy-") ? "" : current.notes,
@@ -159,10 +172,17 @@ function applyAction(board, body, now) {
     const file = String(body.file || "");
     if (!isSafeImagePath(file)) throw new Error("Invalid image file path");
     const current = board.reviews[file] || emptyReview();
+    const rating = normalizeRating(body.rating);
+    const updatedAt = isIsoDate(body.updatedAt) ? body.updatedAt : now;
+    if (rating === 0) {
+      board.clearedRatings[file] = updatedAt;
+    } else if (!isIsoDate(board.clearedRatings[file]) || isNewer(updatedAt, board.clearedRatings[file])) {
+      delete board.clearedRatings[file];
+    }
     board.reviews[file] = {
       ...current,
-      rating: normalizeRating(body.rating),
-      updatedAt: isIsoDate(body.updatedAt) ? body.updatedAt : now
+      rating,
+      updatedAt
     };
     return;
   }
@@ -204,6 +224,8 @@ function normalizeBoard(saved) {
     reviews: pruneReviews(normalizeStoredReviews(saved.reviews || {})),
     masterNotes: normalizeNotes(saved.masterNotes || []),
     references: normalizeReferences(saved.references || []),
+    deletedNoteIds: normalizeTimestampsByKey(saved.deletedNoteIds || {}),
+    clearedRatings: normalizeTimestampsByImagePath(saved.clearedRatings || {}),
     updatedAt: isIsoDate(saved.updatedAt) ? saved.updatedAt : ""
   };
 }
@@ -213,6 +235,8 @@ function emptyBoard() {
     reviews: {},
     masterNotes: [],
     references: [],
+    deletedNoteIds: {},
+    clearedRatings: {},
     updatedAt: ""
   };
 }
@@ -223,6 +247,8 @@ function serializeBoard(board) {
     reviews: board.reviews,
     masterNotes: board.masterNotes,
     references: board.references,
+    deletedNoteIds: board.deletedNoteIds,
+    clearedRatings: board.clearedRatings,
     updatedAt: board.updatedAt
   };
 }
@@ -242,7 +268,8 @@ function normalizeStoredReviews(reviews) {
   return normalized;
 }
 
-function mergeReviews(target, incoming, now) {
+function mergeReviews(target, incoming, now, board) {
+  applyTombstonesToReviews(incoming, board);
   Object.entries(incoming).forEach(([file, review]) => {
     const current = target[file];
     const updatedAt = isIsoDate(review.updatedAt) ? review.updatedAt : now;
@@ -260,6 +287,44 @@ function mergeReviews(target, incoming, now) {
       ...current,
       noteThread: mergedThread
     };
+  });
+}
+
+function applyTombstones(board) {
+  board.deletedNoteIds = normalizeTimestampsByKey(board.deletedNoteIds || {});
+  board.clearedRatings = normalizeTimestampsByImagePath(board.clearedRatings || {});
+  applyTombstonesToReviews(board.reviews, board);
+}
+
+function applyTombstonesToReviews(reviews, board) {
+  if (!reviews || typeof reviews !== "object") return;
+  const deletedNoteIds = board?.deletedNoteIds || {};
+  const clearedRatings = board?.clearedRatings || {};
+  Object.entries(reviews).forEach(([file, review]) => {
+    if (!review || typeof review !== "object") return;
+    review.noteThread = normalizeNotes(review.noteThread || [])
+      .filter((note) => !deletedNoteIds[note.id]);
+
+    const clearedAt = clearedRatings[file];
+    if (!isIsoDate(clearedAt)) return;
+
+    const updatedAt = isIsoDate(review.updatedAt) ? review.updatedAt : "";
+    if (normalizeRating(review.rating) > 0 && isNewer(updatedAt, clearedAt)) {
+      delete clearedRatings[file];
+      return;
+    }
+
+    if (!updatedAt || !isNewer(updatedAt, clearedAt)) {
+      review.rating = 0;
+      review.updatedAt = clearedAt;
+    }
+  });
+}
+
+function removeDeletedNoteId(reviews, id) {
+  Object.values(reviews || {}).forEach((review) => {
+    if (!review || typeof review !== "object" || !Array.isArray(review.noteThread)) return;
+    review.noteThread = review.noteThread.filter((note) => note.id !== id);
   });
 }
 
@@ -298,6 +363,28 @@ function normalizeNote(note) {
 function normalizeReferences(references) {
   if (!Array.isArray(references)) return [];
   return references.map(normalizeReference).filter(Boolean);
+}
+
+function normalizeTimestampsByKey(values) {
+  const normalized = {};
+  if (!values || typeof values !== "object" || Array.isArray(values)) return normalized;
+  Object.entries(values).forEach(([key, timestamp]) => {
+    const safeKey = String(key || "").slice(0, 120);
+    if (!safeKey || !isIsoDate(timestamp)) return;
+    normalized[safeKey] = timestamp;
+  });
+  return normalized;
+}
+
+function normalizeTimestampsByImagePath(values) {
+  const normalized = {};
+  if (!values || typeof values !== "object" || Array.isArray(values)) return normalized;
+  Object.entries(values).forEach(([file, timestamp]) => {
+    const safeFile = String(file || "");
+    if (!isSafeImagePath(safeFile) || !isIsoDate(timestamp)) return;
+    normalized[safeFile] = timestamp;
+  });
+  return normalized;
 }
 
 function normalizeReference(reference) {
