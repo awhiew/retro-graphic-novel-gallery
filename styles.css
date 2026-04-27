@@ -304,6 +304,7 @@ h3 {
 .review-select,
 .star-button,
 .clear-rating,
+.download-link,
 .lightbox-close {
   min-height: 34px;
   border: 1px solid rgba(31, 20, 28, 0.18);
@@ -317,6 +318,7 @@ h3 {
 .tool-button,
 .star-button,
 .clear-rating,
+.download-link,
 .lightbox-close {
   display: inline-flex;
   align-items: center;
@@ -477,6 +479,12 @@ h3 {
   color: var(--muted);
 }
 
+.download-link {
+  justify-self: start;
+  color: var(--plum);
+  text-decoration: none;
+}
+
 .notes-label {
   display: grid;
   gap: 7px;
@@ -502,6 +510,7 @@ h3 {
 .tool-button:focus,
 .star-button:focus,
 .clear-rating:focus,
+.download-link:focus,
 .image-button:focus,
 .lightbox-close:focus {
   outline: 3px solid rgba(127, 201, 189, 0.45);

@@ -240,6 +240,14 @@ function createCard(item) {
     body.append(direction);
   }
 
+  const downloadLink = document.createElement("a");
+  downloadLink.className = "download-link";
+  downloadLink.href = item.file;
+  downloadLink.download = getDownloadFilename(item);
+  downloadLink.textContent = "Download image";
+  downloadLink.setAttribute("aria-label", `Download image: ${item.title}`);
+  downloadLink.addEventListener("click", (event) => event.stopPropagation());
+
   const ratingRow = document.createElement("div");
   ratingRow.className = "rating-row";
   ratingRow.setAttribute("aria-label", `Rating for ${item.title}`);
@@ -275,9 +283,23 @@ function createCard(item) {
   textarea.addEventListener("input", () => updateReview(item.file, { notes: textarea.value }, false));
   label.append(textarea);
 
-  body.append(ratingRow, label);
+  body.append(downloadLink, ratingRow, label);
   card.append(imageButton, body);
   return card;
+}
+
+function getDownloadFilename(item) {
+  const extensionMatch = item.file.match(/(\.[a-z0-9]+)(?:[?#].*)?$/i);
+  const extension = extensionMatch ? extensionMatch[1].toLowerCase() : "";
+  const indexMatch = item.file.match(/(?:^|\/)(\d{2,})[-_]/);
+  const prefix = indexMatch ? `${indexMatch[1]}-` : "";
+  const slug = item.title
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return `${prefix}${slug || "image"}${extension || ".png"}`;
 }
 
 function getReview(item) {
