@@ -622,18 +622,33 @@ async function deleteReference(referenceId) {
   }
 }
 
-function updateRating(file, rating) {
+async function updateRating(file, rating) {
   const item = manifest.find((entry) => entry.file === file);
   if (!item) return;
   const current = getReview(item);
+  const previousReview = boardState.reviews[file] ? cleanReview(boardState.reviews[file]) : null;
+  const nextRating = normalizeRating(rating);
+  const updatedAt = new Date().toISOString();
   boardState.reviews[file] = cleanReview({
     ...current,
-    rating: normalizeRating(rating),
-    updatedAt: new Date().toISOString()
+    rating: nextRating,
+    updatedAt
   });
+  boardState.reviews = filterReviewState(boardState.reviews);
   saveBoardState();
-  queueCloudSave(file);
   render();
+  try {
+    await saveRatingActionToCloud(file, nextRating, updatedAt);
+  } catch (error) {
+    if (previousReview) {
+      boardState.reviews[file] = previousReview;
+    } else {
+      delete boardState.reviews[file];
+    }
+    saveBoardState();
+    render();
+    setCloudStatus("Saving failed");
+  }
 }
 
 async function uploadReference() {
@@ -814,7 +829,7 @@ function getDownloadFilename(item) {
 function getReview(item) {
   const saved = boardState.reviews[item.file] || {};
   return cleanReview({
-    rating: saved.rating ?? item.rating,
+    rating: saved.rating ?? 0,
     notes: saved.notes ?? item.notes,
     noteThread: saved.noteThread,
     updatedAt: saved.updatedAt
@@ -863,7 +878,10 @@ function mergeCloudBoard(cloudBoard) {
   });
 
   Object.entries(boardState.reviews).forEach(([file, review]) => {
-    if (!cloudBoard.reviews[file] && isIsoDate(review.updatedAt)) localUpdates[file] = review;
+    const cleaned = cleanReview(review);
+    if (!cloudBoard.reviews[file] && isIsoDate(cleaned.updatedAt) && (cleaned.rating || hasReviewNotes(cleaned))) {
+      localUpdates[file] = cleaned;
+    }
   });
   boardState.reviews = filterReviewState(boardState.reviews);
   return localUpdates;
@@ -935,6 +953,26 @@ async function saveDeleteActionToCloud(payload) {
     body: JSON.stringify(payload)
   });
   if (!response.ok) throw new Error(`Delete returned ${response.status}`);
+  const data = await response.json();
+  mergeCloudBoard(normalizeBoardState(data));
+  saveBoardState();
+  render();
+  setCloudStatus("Cloud saved");
+}
+
+async function saveRatingActionToCloud(file, rating, updatedAt) {
+  setCloudStatus("Saving");
+  const response = await fetch(reviewEndpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action: "updateRating",
+      file,
+      rating,
+      updatedAt
+    })
+  });
+  if (!response.ok) throw new Error(`Rating save returned ${response.status}`);
   const data = await response.json();
   mergeCloudBoard(normalizeBoardState(data));
   saveBoardState();
