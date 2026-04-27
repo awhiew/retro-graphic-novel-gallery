@@ -195,13 +195,23 @@ function bindControls() {
 }
 
 function isFilterButtonPressed(value) {
+  if (value === "all") return isRatingFilterAll();
   if (ratingFilterValues.has(value)) return activeFilters.ratings.has(Number(value));
   if (value === "notes") return activeFilters.notes;
   if (value === "unrated") return activeFilters.unrated;
   return false;
 }
 
+function isRatingFilterAll() {
+  return activeFilters.ratings.size === 0 && !activeFilters.unrated;
+}
+
 function toggleFilterValue(value) {
+  if (value === "all") {
+    activeFilters.ratings.clear();
+    activeFilters.unrated = false;
+    return;
+  }
   if (ratingFilterValues.has(value)) {
     const rating = Number(value);
     if (activeFilters.ratings.has(rating)) {
@@ -209,13 +219,18 @@ function toggleFilterValue(value) {
     } else {
       activeFilters.ratings.add(rating);
     }
+    activeFilters.unrated = false;
     return;
   }
   if (value === "notes") {
     activeFilters.notes = !activeFilters.notes;
     return;
   }
-  if (value === "unrated") activeFilters.unrated = !activeFilters.unrated;
+  if (value === "unrated") {
+    const nextUnrated = !activeFilters.unrated;
+    activeFilters.unrated = nextUnrated;
+    if (nextUnrated) activeFilters.ratings.clear();
+  }
 }
 
 function updateFilterButtons() {
@@ -229,14 +244,16 @@ function updateFilterButtons() {
 
 function matchesActiveFilters(item) {
   const review = getReview(item);
-  const hasSelectedFilters =
-    activeFilters.ratings.size > 0 || activeFilters.notes || activeFilters.unrated;
-  if (!hasSelectedFilters) return true;
+  let matchesRatingState = true;
+  if (activeFilters.unrated) {
+    matchesRatingState = review.rating === 0;
+  } else if (activeFilters.ratings.size > 0) {
+    matchesRatingState = activeFilters.ratings.has(review.rating);
+  }
+  if (!matchesRatingState) return false;
 
-  if (activeFilters.ratings.has(review.rating)) return true;
-  if (activeFilters.notes && hasReviewNotes(review)) return true;
-  if (activeFilters.unrated && review.rating === 0) return true;
-  return false;
+  if (activeFilters.notes && !hasReviewNotes(review)) return false;
+  return true;
 }
 
 function setupFromPicker(scope) {

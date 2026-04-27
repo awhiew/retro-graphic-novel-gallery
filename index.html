@@ -9,7 +9,7 @@
       content="Retro graphic novel character art review board with ratings, notes, filters, and shared cloud sync."
     >
     <title>Retro Graphic Novel Art Board</title>
-    <link rel="stylesheet" href="styles.css?v=20260427-multi-filter-chips">
+    <link rel="stylesheet" href="styles.css?v=20260427-filter-all-notes-overlay">
   </head>
   <body>
     <main id="top">
@@ -109,6 +109,7 @@
         <div class="review-toolbar" aria-label="Gallery review tools">
           <div class="toolbar-row toolbar-filter-stars">
             <span class="toolbar-label">Filter</span>
+            <button class="tool-button" type="button" data-filter-value="all" aria-pressed="true">All</button>
             <button class="tool-button" type="button" data-filter-value="5" aria-pressed="false">5★</button>
             <button class="tool-button" type="button" data-filter-value="4" aria-pressed="false">4★</button>
             <button class="tool-button" type="button" data-filter-value="3" aria-pressed="false">3★</button>
@@ -143,6 +144,6 @@
       <p id="lightbox-caption"></p>
     </div>
 
-    <script src="app.js?v=20260427-multi-filter-chips"></script>
+    <script src="app.js?v=20260427-filter-all-notes-overlay"></script>
   </body>
 </html>
