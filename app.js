@@ -7,6 +7,7 @@ const maxReferenceFileSize = 20 * 1024 * 1024;
 const maxReferenceEncodedLength = 6 * 1024 * 1024;
 const referenceUploadTimeout = 20000;
 const cloudSaveDelay = 500;
+const cloudSyncInterval = 5000;
 
 const groupDirections = {
   "Reference Redos": "Compare the core character silhouette, face, outfit language, and cover-read appeal.",
@@ -100,6 +101,7 @@ let pendingCloudFiles = new Set();
 let pendingFullCloudSave = false;
 let selectedReferencePreviewUrl = "";
 let isUploadingReference = false;
+let isSyncingCloud = false;
 
 const filters = {
   all: () => true,
@@ -118,7 +120,8 @@ async function init() {
   saveBoardState();
   render();
   bindControls();
-  syncReviewsFromCloud();
+  await syncReviewsFromCloud({ showStatus: true });
+  window.setInterval(syncReviewsFromCloud, cloudSyncInterval);
 }
 
 async function loadManifest() {
@@ -802,8 +805,11 @@ function getReview(item) {
   });
 }
 
-async function syncReviewsFromCloud() {
-  setCloudStatus("Syncing");
+async function syncReviewsFromCloud(options = {}) {
+  if (isSyncingCloud) return;
+  isSyncingCloud = true;
+  const showStatus = Boolean(options.showStatus);
+  if (showStatus) setCloudStatus("Syncing");
   try {
     const response = await fetch(reviewEndpoint, { cache: "no-store" });
     if (!response.ok) throw new Error(`Reviews returned ${response.status}`);
@@ -812,31 +818,32 @@ async function syncReviewsFromCloud() {
     const localUpdates = mergeCloudBoard(cloudBoard);
     saveBoardState();
     render();
-    setCloudStatus("Cloud synced");
+    if (showStatus || cloudStatusEl?.textContent === "Cloud unavailable") setCloudStatus("Cloud synced");
     if (Object.keys(localUpdates).length || pendingFullCloudSave) saveFullBoardToCloud();
   } catch (error) {
     setCloudStatus("Cloud unavailable");
+  } finally {
+    isSyncingCloud = false;
   }
 }
 
 function mergeCloudBoard(cloudBoard) {
   const localUpdates = {};
-  boardState.masterNotes = mergeById(boardState.masterNotes, cloudBoard.masterNotes);
-  boardState.references = mergeById(boardState.references, cloudBoard.references);
+  boardState.masterNotes = cloudBoard.masterNotes;
+  boardState.references = cloudBoard.references;
 
   Object.entries(cloudBoard.reviews).forEach(([file, cloudReview]) => {
     const localReview = boardState.reviews[file];
-    const mergedThread = mergeById(localReview?.noteThread || [], cloudReview.noteThread || []);
     if (!localReview || isNewer(cloudReview.updatedAt, localReview.updatedAt)) {
-      boardState.reviews[file] = cleanReview({ ...cloudReview, noteThread: mergedThread });
+      boardState.reviews[file] = cleanReview(cloudReview);
       return;
     }
     if (isNewer(localReview.updatedAt, cloudReview.updatedAt)) {
-      localUpdates[file] = cleanReview({ ...localReview, noteThread: mergedThread });
+      localUpdates[file] = cleanReview(localReview);
       boardState.reviews[file] = localUpdates[file];
       return;
     }
-    boardState.reviews[file] = cleanReview({ ...localReview, noteThread: mergedThread });
+    boardState.reviews[file] = cleanReview(cloudReview);
   });
 
   Object.entries(boardState.reviews).forEach(([file, review]) => {
@@ -1121,7 +1128,7 @@ function makeEmptyBoard() {
 function toLocalBoardState(state) {
   return {
     reviews: state.reviews,
-    masterNotes: state.masterNotes,
+    masterNotes: [],
     references: [],
     updatedAt: state.updatedAt
   };
