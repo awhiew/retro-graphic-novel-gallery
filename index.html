@@ -68,7 +68,7 @@
         <div class="section-heading gallery-heading">
           <div>
             <p class="eyebrow">Review gallery</p>
-            <h2 id="gallery-title">Scrollable image board</h2>
+            <h2 id="gallery-title">Character Direction Gallery</h2>
           </div>
           <div class="gallery-status-group">
             <p id="gallery-status" class="gallery-status" aria-live="polite">Loading manifest...</p>
@@ -80,26 +80,35 @@
           <div class="master-panel-header">
             <div>
               <p class="eyebrow">Shared review workspace</p>
-              <h3 id="master-notes-title">Master notes for review</h3>
+              <h3 id="master-notes-title">Shared Review Hub</h3>
+              <p class="master-panel-intro">
+                Hannah can save overall thoughts, visual references, and direction notes here before choosing the strongest character lane.
+              </p>
             </div>
             <button id="add-master-note" class="primary-action" type="button">Add master note</button>
           </div>
 
-          <form id="master-note-form" class="note-form" hidden>
-            <label for="master-note-text">New master note</label>
-            <textarea id="master-note-text" maxlength="5000" placeholder="Add a shared note for Andrew and Hannah"></textarea>
-            <div class="form-actions">
-              <button class="primary-action" type="submit">Save</button>
-              <button id="cancel-master-note" class="secondary-action" type="button">Cancel</button>
+          <div class="master-review-block">
+            <div class="master-block-heading">
+              <span>Direction notes</span>
+              <p>Overall reactions, must-keep traits, and final art direction.</p>
             </div>
-          </form>
+            <form id="master-note-form" class="note-form" hidden>
+              <label for="master-note-text">New master note</label>
+              <textarea id="master-note-text" maxlength="5000" placeholder="Add a shared note for Andrew and Hannah"></textarea>
+              <div class="form-actions">
+                <button class="primary-action" type="submit">Save</button>
+                <button id="cancel-master-note" class="secondary-action" type="button">Cancel</button>
+              </div>
+            </form>
 
-          <div id="master-notes-list" class="note-thread" aria-live="polite"></div>
+            <div id="master-notes-list" class="note-thread" aria-live="polite"></div>
+          </div>
 
           <div class="reference-upload" aria-labelledby="reference-upload-title">
             <div>
               <h4 id="reference-upload-title">Reference uploads</h4>
-              <p>Upload image references to the shared board.</p>
+              <p>Collect inspiration, art cues, and visual direction in one shared place.</p>
             </div>
             <form id="reference-form" class="reference-form">
               <label class="file-picker" for="reference-file">Upload reference</label>
