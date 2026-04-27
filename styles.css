@@ -821,12 +821,13 @@ h3 {
 }
 
 .reference-item {
+  position: relative;
   display: grid;
   grid-template-columns: 74px minmax(0, 1fr);
   gap: 10px;
   min-width: 0;
   align-items: center;
-  padding: 8px;
+  padding: 8px 38px 8px 8px;
   border: 1px solid rgba(127, 201, 189, 0.22);
   border-radius: 8px;
   background: rgba(255, 253, 250, 0.82);
@@ -851,6 +852,32 @@ h3 {
 .reference-item span {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.reference-delete-button {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  display: inline-grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid rgba(52, 34, 44, 0.24);
+  border-radius: 50%;
+  color: #fffdfa;
+  background: rgba(33, 22, 32, 0.88);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.reference-delete-button:hover,
+.reference-delete-button:focus-visible {
+  background: #8a2d3e;
+  outline: 2px solid rgba(255, 253, 250, 0.92);
+  outline-offset: 2px;
 }
 
 .summary-strip {

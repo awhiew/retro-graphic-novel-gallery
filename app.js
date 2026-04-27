@@ -246,6 +246,15 @@ function renderMasterPanel() {
     const item = document.createElement("article");
     item.className = "reference-item";
     const caption = reference.caption || reference.name;
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "reference-delete-button";
+    deleteButton.type = "button";
+    deleteButton.setAttribute("aria-label", `Delete reference: ${caption}`);
+    deleteButton.textContent = "×";
+    deleteButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      deleteReference(reference.id);
+    });
     item.innerHTML = `
       <img src="${escapeAttribute(reference.dataUrl)}" alt="${escapeAttribute(caption)}" loading="lazy">
       <div>
@@ -254,6 +263,7 @@ function renderMasterPanel() {
         <span>${escapeHtml(reference.name)}</span>
       </div>
     `;
+    item.append(deleteButton);
     referenceList.append(item);
   });
 }
@@ -570,6 +580,23 @@ async function deleteImageNote(file, noteId) {
     } else {
       delete boardState.reviews[file];
     }
+    saveBoardState();
+    render();
+    setCloudStatus("Saving failed");
+  }
+}
+
+async function deleteReference(referenceId) {
+  const id = String(referenceId || "");
+  if (!id) return;
+  const previousReferences = boardState.references;
+  boardState.references = boardState.references.filter((reference) => reference.id !== id);
+  saveBoardState();
+  render();
+  try {
+    await saveDeleteActionToCloud({ action: "deleteReference", id });
+  } catch (error) {
+    boardState.references = previousReferences;
     saveBoardState();
     render();
     setCloudStatus("Saving failed");

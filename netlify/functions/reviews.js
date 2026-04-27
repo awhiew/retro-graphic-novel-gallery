@@ -141,6 +141,13 @@ function applyAction(board, body, now) {
     return;
   }
 
+  if (body.action === "deleteReference") {
+    const id = String(body.id || "").slice(0, 120);
+    if (!id) throw new Error("Invalid reference id");
+    board.references = board.references.filter((reference) => reference.id !== id);
+    return;
+  }
+
   if (body.action === "updateRating") {
     const file = String(body.file || "");
     if (!isSafeImagePath(file)) throw new Error("Invalid image file path");
