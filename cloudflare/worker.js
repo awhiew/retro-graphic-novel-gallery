@@ -1,6 +1,6 @@
 const boardKey = "shared-board";
 const maxNotesLength = 5000;
-const maxReferenceEncodedLength = 28 * 1024 * 1024;
+const maxReferenceEncodedLength = 6 * 1024 * 1024;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

@@ -4,7 +4,7 @@ const reviewEndpoint =
   "https://retro-graphic-novel-review-api.andrewhiew.workers.dev";
 const maxNotesLength = 5000;
 const maxReferenceFileSize = 20 * 1024 * 1024;
-const maxReferenceEncodedLength = 28 * 1024 * 1024;
+const maxReferenceEncodedLength = 6 * 1024 * 1024;
 const cloudSaveDelay = 500;
 
 const groupDirections = {
@@ -608,10 +608,10 @@ async function uploadReference() {
 
   setReferenceUploadState(true, "Reading image...");
   try {
-    const dataUrl = await readFileAsDataUrl(file);
+    const dataUrl = await createUploadDataUrl(file);
     setReferenceUploadStatus("Saving upload...");
     if (!isValidReferenceDataUrl(dataUrl)) {
-      referenceError.textContent = "That image is too large or not a supported image data URL.";
+      referenceError.textContent = "That image could not be optimised for upload. Try a smaller file.";
       return;
     }
     const now = new Date().toISOString();
@@ -696,6 +696,37 @@ async function saveReferenceToCloud(reference) {
   const data = await response.json();
   mergeCloudBoard(normalizeBoardState(data));
   setCloudStatus("Cloud saved");
+}
+
+async function createUploadDataUrl(file) {
+  const originalDataUrl = await readFileAsDataUrl(file);
+  if (originalDataUrl.length <= maxReferenceEncodedLength) return originalDataUrl;
+  setReferenceUploadStatus("Optimising image...");
+  if (!window.createImageBitmap) return originalDataUrl;
+
+  const bitmap = await createImageBitmap(file);
+  const maxSides = [1800, 1400, 1100, 900];
+  const qualities = [0.86, 0.78, 0.7, 0.62];
+  try {
+    for (const maxSide of maxSides) {
+      const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+      const width = Math.max(1, Math.round(bitmap.width * scale));
+      const height = Math.max(1, Math.round(bitmap.height * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const context = canvas.getContext("2d");
+      if (!context) continue;
+      context.drawImage(bitmap, 0, 0, width, height);
+      for (const quality of qualities) {
+        const compressed = canvas.toDataURL("image/jpeg", quality);
+        if (compressed.length <= maxReferenceEncodedLength) return compressed;
+      }
+    }
+  } finally {
+    if (typeof bitmap.close === "function") bitmap.close();
+  }
+  return originalDataUrl;
 }
 
 function readFileAsDataUrl(file) {
