@@ -5,6 +5,7 @@ const reviewEndpoint =
 const maxNotesLength = 5000;
 const maxReferenceFileSize = 20 * 1024 * 1024;
 const maxReferenceEncodedLength = 6 * 1024 * 1024;
+const referenceUploadTimeout = 20000;
 const cloudSaveDelay = 500;
 
 const groupDirections = {
@@ -596,25 +597,28 @@ async function uploadReference() {
   const file = referenceFile.files && referenceFile.files[0];
   if (!file) {
     referenceError.textContent = "Choose an image before saving.";
+    setReferenceUploadState(false);
     return;
   }
   if (!file.type || !file.type.startsWith("image/")) {
     referenceError.textContent = "Reference uploads must be image files.";
+    setReferenceUploadState(false);
     return;
   }
   if (file.size > maxReferenceFileSize) {
     referenceError.textContent = "That image is too large. Please upload one under 20 MB.";
+    setReferenceUploadState(false);
     return;
   }
 
   setReferenceUploadState(true, "Reading image...");
   try {
     const dataUrl = await createUploadDataUrl(file);
-    setReferenceUploadStatus("Saving upload...");
     if (!isValidReferenceDataUrl(dataUrl)) {
       referenceError.textContent = "That image could not be optimised for upload. Try a smaller file.";
       return;
     }
+    setReferenceUploadStatus("Saving upload...");
     const now = new Date().toISOString();
     const reference = {
       id: createId("ref"),
@@ -688,11 +692,19 @@ function setReferenceUploadStatus(message) {
 
 async function saveReferenceToCloud(reference) {
   setCloudStatus("Saving");
-  const response = await fetch(reviewEndpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "uploadReference", reference })
-  });
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), referenceUploadTimeout);
+  let response;
+  try {
+    response = await fetch(reviewEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "uploadReference", reference }),
+      signal: controller.signal
+    });
+  } finally {
+    window.clearTimeout(timeout);
+  }
   if (!response.ok) throw new Error(`Reference upload returned ${response.status}`);
   const data = await response.json();
   mergeCloudBoard(normalizeBoardState(data));
