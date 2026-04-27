@@ -9,7 +9,7 @@
       content="Retro graphic novel character art review board with ratings, notes, filters, and shared cloud sync."
     >
     <title>Retro Graphic Novel Art Board</title>
-    <link rel="stylesheet" href="styles.css?v=20260427-no-resurrect">
+    <link rel="stylesheet" href="styles.css?v=20260427-multi-filter-chips">
   </head>
   <body>
     <main id="top">
@@ -107,13 +107,18 @@
         </section>
 
         <div class="review-toolbar" aria-label="Gallery review tools">
-          <div class="toolbar-row">
+          <div class="toolbar-row toolbar-filter-stars">
             <span class="toolbar-label">Filter</span>
-            <button class="tool-button active" type="button" data-filter="all">All</button>
-            <button class="tool-button" type="button" data-filter="five">5★</button>
-            <button class="tool-button" type="button" data-filter="fourPlus">4★+</button>
-            <button class="tool-button" type="button" data-filter="notes">Notes</button>
-            <button class="tool-button" type="button" data-filter="unrated">Unrated</button>
+            <button class="tool-button" type="button" data-filter-value="5" aria-pressed="false">5★</button>
+            <button class="tool-button" type="button" data-filter-value="4" aria-pressed="false">4★</button>
+            <button class="tool-button" type="button" data-filter-value="3" aria-pressed="false">3★</button>
+            <button class="tool-button" type="button" data-filter-value="2" aria-pressed="false">2★</button>
+            <button class="tool-button" type="button" data-filter-value="1" aria-pressed="false">1★</button>
+          </div>
+          <div class="toolbar-row toolbar-filter-meta">
+            <span class="toolbar-label toolbar-spacer" aria-hidden="true"></span>
+            <button class="tool-button" type="button" data-filter-value="notes" aria-pressed="false">Notes</button>
+            <button class="tool-button" type="button" data-filter-value="unrated" aria-pressed="false">Unrated</button>
           </div>
           <div class="toolbar-row toolbar-actions">
             <label class="toolbar-label" for="sort-select">Sort</label>
@@ -138,6 +143,6 @@
       <p id="lightbox-caption"></p>
     </div>
 
-    <script src="app.js?v=20260427-reference-lightbox"></script>
+    <script src="app.js?v=20260427-multi-filter-chips"></script>
   </body>
 </html>

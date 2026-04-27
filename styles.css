@@ -300,6 +300,7 @@ h3 {
 }
 
 .review-toolbar {
+  --filter-label-width: 56px;
   display: grid;
   gap: 10px;
   min-width: 0;
@@ -315,10 +316,9 @@ h3 {
   display: flex;
   align-items: center;
   gap: 7px;
+  flex-wrap: wrap;
   min-width: 0;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scrollbar-width: thin;
+  overflow: visible;
 }
 
 .toolbar-actions {
@@ -328,6 +328,15 @@ h3 {
 
 .toolbar-label {
   flex: 0 0 auto;
+}
+
+.toolbar-filter-stars .toolbar-label,
+.toolbar-filter-meta .toolbar-spacer {
+  width: var(--filter-label-width);
+}
+
+.toolbar-spacer {
+  visibility: hidden;
 }
 
 .tool-button,
@@ -1185,7 +1194,18 @@ h3 {
 
   .review-toolbar {
     grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
+    align-items: start;
+  }
+
+  .toolbar-filter-stars,
+  .toolbar-filter-meta {
+    grid-column: 1;
+  }
+
+  .toolbar-actions {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
   }
 
   .summary-strip {

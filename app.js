@@ -71,7 +71,7 @@ const statusEl = document.querySelector("#gallery-status");
 const cloudStatusEl = document.querySelector("#cloud-status");
 const summaryEl = document.querySelector("#summary-strip");
 const sortSelect = document.querySelector("#sort-select");
-const filterButtons = [...document.querySelectorAll("[data-filter]")];
+const filterButtons = [...document.querySelectorAll("[data-filter-value]")];
 const masterNoteButton = document.querySelector("#add-master-note");
 const masterNoteForm = document.querySelector("#master-note-form");
 const masterNoteFrom = document.querySelector("#master-note-from");
@@ -90,11 +90,16 @@ const lightbox = document.querySelector("#lightbox");
 const lightboxImage = lightbox.querySelector("img");
 const lightboxCaption = document.querySelector("#lightbox-caption");
 const lightboxClose = document.querySelector(".lightbox-close");
+const ratingFilterValues = new Set(["1", "2", "3", "4", "5"]);
 
 let manifest = [];
 let manifestFiles = new Set();
 let boardState = loadBoardState();
-let activeFilter = "all";
+const activeFilters = {
+  ratings: new Set(),
+  notes: false,
+  unrated: false
+};
 let activeSort = "original";
 let cloudTimer = 0;
 let pendingCloudFiles = new Set();
@@ -102,14 +107,6 @@ let pendingFullCloudSave = false;
 let selectedReferencePreviewUrl = "";
 let isUploadingReference = false;
 let isSyncingCloud = false;
-
-const filters = {
-  all: () => true,
-  five: (item) => getReview(item).rating === 5,
-  fourPlus: (item) => getReview(item).rating >= 4,
-  notes: (item) => hasReviewNotes(getReview(item)),
-  unrated: (item) => getReview(item).rating === 0
-};
 
 init();
 
@@ -158,9 +155,13 @@ function normalizeManifest(data) {
 
 function bindControls() {
   filterButtons.forEach((button) => {
+    const value = button.dataset.filterValue || "";
+    const isPressed = isFilterButtonPressed(value);
+    button.classList.toggle("active", isPressed);
+    button.setAttribute("aria-pressed", String(isPressed));
     button.addEventListener("click", () => {
-      activeFilter = button.dataset.filter;
-      filterButtons.forEach((item) => item.classList.toggle("active", item === button));
+      toggleFilterValue(value);
+      updateFilterButtons();
       render();
     });
   });
@@ -191,6 +192,51 @@ function bindControls() {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && !lightbox.hidden) closeLightbox();
   });
+}
+
+function isFilterButtonPressed(value) {
+  if (ratingFilterValues.has(value)) return activeFilters.ratings.has(Number(value));
+  if (value === "notes") return activeFilters.notes;
+  if (value === "unrated") return activeFilters.unrated;
+  return false;
+}
+
+function toggleFilterValue(value) {
+  if (ratingFilterValues.has(value)) {
+    const rating = Number(value);
+    if (activeFilters.ratings.has(rating)) {
+      activeFilters.ratings.delete(rating);
+    } else {
+      activeFilters.ratings.add(rating);
+    }
+    return;
+  }
+  if (value === "notes") {
+    activeFilters.notes = !activeFilters.notes;
+    return;
+  }
+  if (value === "unrated") activeFilters.unrated = !activeFilters.unrated;
+}
+
+function updateFilterButtons() {
+  filterButtons.forEach((button) => {
+    const value = button.dataset.filterValue || "";
+    const isPressed = isFilterButtonPressed(value);
+    button.classList.toggle("active", isPressed);
+    button.setAttribute("aria-pressed", String(isPressed));
+  });
+}
+
+function matchesActiveFilters(item) {
+  const review = getReview(item);
+  const hasSelectedFilters =
+    activeFilters.ratings.size > 0 || activeFilters.notes || activeFilters.unrated;
+  if (!hasSelectedFilters) return true;
+
+  if (activeFilters.ratings.has(review.rating)) return true;
+  if (activeFilters.notes && hasReviewNotes(review)) return true;
+  if (activeFilters.unrated && review.rating === 0) return true;
+  return false;
 }
 
 function setupFromPicker(scope) {
@@ -226,7 +272,7 @@ function updateFromPickerActive(picker) {
 }
 
 function render() {
-  const filtered = getSortedItems().filter(filters[activeFilter] || filters.all);
+  const filtered = getSortedItems().filter(matchesActiveFilters);
   renderMasterPanel();
   renderSummary(filtered);
   renderGroups(filtered);
