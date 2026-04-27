@@ -877,11 +877,10 @@ function mergeCloudBoard(cloudBoard) {
     boardState.reviews[file] = cleanReview(cloudReview);
   });
 
-  Object.entries(boardState.reviews).forEach(([file, review]) => {
-    const cleaned = cleanReview(review);
-    if (!cloudBoard.reviews[file] && isIsoDate(cleaned.updatedAt) && (cleaned.rating || hasReviewNotes(cleaned))) {
-      localUpdates[file] = cleaned;
-    }
+  Object.keys(boardState.reviews).forEach((file) => {
+    // Missing cloud reviews are authoritative deletes/clears. Do not reupload them,
+    // because stale tabs or localStorage can otherwise resurrect deleted notes or unrated images.
+    if (!cloudBoard.reviews[file]) delete boardState.reviews[file];
   });
   boardState.reviews = filterReviewState(boardState.reviews);
   return localUpdates;
