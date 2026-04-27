@@ -221,12 +221,24 @@ h3 {
 }
 
 .section-heading p:not(.eyebrow),
-.gallery-status {
+.gallery-status,
+.cloud-status {
   max-width: 720px;
   margin: 0;
   color: var(--muted);
   font-size: 15px;
   line-height: 1.5;
+}
+
+.gallery-status-group {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.cloud-status {
+  color: #8b6679;
+  font-weight: 800;
 }
 
 .direction-grid {
@@ -289,7 +301,6 @@ h3 {
 }
 
 .tool-button,
-.export-button,
 .review-select,
 .star-button,
 .clear-rating,
@@ -304,7 +315,6 @@ h3 {
 }
 
 .tool-button,
-.export-button,
 .star-button,
 .clear-rating,
 .lightbox-close {
@@ -316,7 +326,6 @@ h3 {
 }
 
 .tool-button.active,
-.export-button,
 .star-button.active {
   border-color: var(--plum);
   background: var(--plum);
@@ -440,6 +449,13 @@ h3 {
   color: #8b6679;
 }
 
+.card-direction {
+  margin: 0;
+  color: #6b5d65;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 .rating-row {
   display: flex;
   align-items: center;
@@ -461,6 +477,14 @@ h3 {
   color: var(--muted);
 }
 
+.notes-label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+}
+
 .notes-field {
   width: 100%;
   min-height: 112px;
@@ -476,7 +500,6 @@ h3 {
 .notes-field:focus,
 .review-select:focus,
 .tool-button:focus,
-.export-button:focus,
 .star-button:focus,
 .clear-rating:focus,
 .image-button:focus,

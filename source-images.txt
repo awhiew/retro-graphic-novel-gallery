@@ -1,1 +1,1 @@
-Original reference image plus GPT-Imagine 2 generations created in OpenClaw for the #retro-graphic-novel Discord project. Public gallery assets are stored under assets/images/.
+Public gallery assets are stored under assets/images/ for the retro graphic novel character review board.

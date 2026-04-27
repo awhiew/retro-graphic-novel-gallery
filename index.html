@@ -6,15 +6,15 @@
     <meta name="theme-color" content="#19151a">
     <meta
       name="description"
-      content="Roxy Vega retro graphic novel review gallery with ratings, notes, filters, and creative direction."
+      content="Retro graphic novel character art review board with ratings, notes, filters, and shared cloud sync."
     >
-    <title>Roxy Vega — Retro Graphic Novel Art Board</title>
+    <title>Retro Graphic Novel Art Board</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <header class="site-header">
-      <a class="brand-mark" href="#top" aria-label="Roxy Vega art board home">
-        <span>Roxy Vega</span>
+      <a class="brand-mark" href="#top" aria-label="Character art board home">
+        <span>Character</span>
         <small>Art Board</small>
       </a>
       <nav class="header-actions" aria-label="Page sections">
@@ -27,7 +27,7 @@
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
           <p class="eyebrow">Character exploration review</p>
-          <h1 id="hero-title">Roxy Vega — Retro Graphic Novel Art Board</h1>
+          <h1 id="hero-title">Retro Graphic Novel Art Board</h1>
           <p>
             Cute-sexy pink-haired alien rebel pilot with an astronaut helmet cat:
             a premium review board for choosing the strongest retro graphic novel lane.
@@ -70,7 +70,10 @@
             <p class="eyebrow">Review gallery</p>
             <h2 id="gallery-title">Scrollable image board</h2>
           </div>
-          <p id="gallery-status" class="gallery-status" aria-live="polite">Loading manifest…</p>
+          <div class="gallery-status-group">
+            <p id="gallery-status" class="gallery-status" aria-live="polite">Loading manifest...</p>
+            <p id="cloud-status" class="cloud-status" aria-live="polite">Cloud syncing...</p>
+          </div>
         </div>
 
         <div class="review-toolbar" aria-label="Gallery review tools">
@@ -91,7 +94,6 @@
               <option value="titleAsc">Title A-Z</option>
               <option value="groupAsc">Group</option>
             </select>
-            <button id="export-json" class="export-button" type="button">Export JSON</button>
           </div>
         </div>
 
