@@ -1091,9 +1091,24 @@ function makeEmptyBoard() {
   };
 }
 
+function toLocalBoardState(state) {
+  return {
+    reviews: state.reviews,
+    masterNotes: state.masterNotes,
+    references: [],
+    updatedAt: state.updatedAt
+  };
+}
+
 function saveBoardState() {
   boardState.updatedAt = new Date().toISOString();
-  localStorage.setItem(storageKey, JSON.stringify(boardState));
+  try {
+    const localState = toLocalBoardState(boardState);
+    localStorage.removeItem(storageKey);
+    localStorage.setItem(storageKey, JSON.stringify(localState));
+  } catch {
+    // Local persistence is best-effort; cloud saves and UI flows should continue.
+  }
 }
 
 function getDisplayTitle(item) {
