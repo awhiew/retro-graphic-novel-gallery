@@ -1,0 +1,7 @@
+name = "retro-graphic-novel-review-api"
+main = "cloudflare/worker.js"
+compatibility_date = "2026-04-27"
+
+[[kv_namespaces]]
+binding = "REVIEW_KV"
+id = "9fc64141f8524ad7bda08141476b5b22"

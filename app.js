@@ -1,7 +1,7 @@
 const storageKey = "retroGraphicNovelReviewBoard:v1";
 const reviewEndpoint =
   window.RETRO_REVIEW_API ||
-  "https://retro-graphic-novel-review-api.netlify.app/.netlify/functions/reviews";
+  "https://retro-graphic-novel-review-api.andrewhiew.workers.dev";
 const maxNotesLength = 5000;
 const maxReferenceEncodedLength = 3 * 1024 * 1024;
 const cloudSaveDelay = 500;
