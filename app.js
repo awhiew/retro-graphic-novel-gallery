@@ -11,7 +11,8 @@ const groupDirections = {
   "Bold Style Explorations": "Use this as a style-range check for linework, color, texture, and world tone.",
   "Cute-Sexy Style Anchors": "Judge whether this balances charm, confidence, softness, and memorable lead-character appeal.",
   "Cute-Sexy Scene Variations": "Review how the character and companion read in a story moment with clear setting and mood.",
-  "Exploring Risograph Punk Comic Style": "Explore this risograph-punk lane for character variety, palette range, attitude, hairstyles, outfits, and story-world potential."
+  "Exploring Risograph Punk Comic Style": "Explore this risograph-punk lane for character variety, palette range, attitude, hairstyles, outfits, and story-world potential.",
+  "World-Building Characters": "Review how each supporting character expands the setting, role variety, and story-world texture."
 };
 
 const fallbackManifest = withDirections([
@@ -49,7 +50,17 @@ const fallbackManifest = withDirections([
   {"file":"assets/images/32-risograph_punk_05_alien_drag_racer.png","title":"Alien Drag Racer","group":"Exploring Risograph Punk Comic Style","rating":0,"notes":""},
   {"file":"assets/images/33-risograph_punk_06_space_witch_dj.png","title":"Space Witch DJ","group":"Exploring Risograph Punk Comic Style","rating":0,"notes":""},
   {"file":"assets/images/34-risograph_punk_07_galactic_surfer.png","title":"Galactic Surfer","group":"Exploring Risograph Punk Comic Style","rating":0,"notes":""},
-  {"file":"assets/images/35-risograph_punk_08_rocket_courier.png","title":"Rocket Courier","group":"Exploring Risograph Punk Comic Style","rating":0,"notes":""}
+  {"file":"assets/images/35-risograph_punk_08_rocket_courier.png","title":"Rocket Courier","group":"Exploring Risograph Punk Comic Style","rating":0,"notes":""},
+  {"file":"assets/images/36-world_building_01_comet_cafe_owner.png","title":"Comet Café Owner","group":"World-Building Characters","rating":0,"notes":""},
+  {"file":"assets/images/37-world_building_02_starport_weather_girl.png","title":"Starport Weather Girl","group":"World-Building Characters","rating":0,"notes":""},
+  {"file":"assets/images/38-world_building_03_orbital_flower_vendor.png","title":"Orbital Flower Vendor","group":"World-Building Characters","rating":0,"notes":""},
+  {"file":"assets/images/39-world_building_04_nebula_train_conductor.png","title":"Nebula Train Conductor","group":"World-Building Characters","rating":0,"notes":""},
+  {"file":"assets/images/40-world_building_05_cosmic_radio_host.png","title":"Cosmic Radio Host","group":"World-Building Characters","rating":0,"notes":""},
+  {"file":"assets/images/41-world_building_06_moon_hotel_bellhop.png","title":"Moon Hotel Bellhop","group":"World-Building Characters","rating":0,"notes":""},
+  {"file":"assets/images/42-world_building_07_alien_botanist.png","title":"Alien Botanist","group":"World-Building Characters","rating":0,"notes":""},
+  {"file":"assets/images/43-world_building_08_starlight_tailor.png","title":"Starlight Tailor","group":"World-Building Characters","rating":0,"notes":""},
+  {"file":"assets/images/44-world_building_09_asteroid_skate_courier.png","title":"Asteroid Skate Courier","group":"World-Building Characters","rating":0,"notes":""},
+  {"file":"assets/images/45-world_building_10_galaxy_librarian.png","title":"Galaxy Librarian","group":"World-Building Characters","rating":0,"notes":""}
 ]);
 
 const board = document.querySelector("#gallery-board");
