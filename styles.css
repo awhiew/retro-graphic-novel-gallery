@@ -611,6 +611,40 @@ h3 {
   resize: vertical;
 }
 
+.from-picker {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(90px, max-content)) minmax(150px, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.from-choice {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid rgba(216, 79, 138, 0.24);
+  border-radius: 999px;
+  background: rgba(255, 253, 250, 0.86);
+  color: var(--plum);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.from-choice.active,
+.from-choice:hover,
+.from-choice:focus {
+  border-color: var(--plum);
+  background: var(--plum);
+  color: #fffaf7;
+}
+
+.from-picker input {
+  min-width: 0;
+}
+
 .form-actions {
   display: flex;
   flex-wrap: wrap;
@@ -996,6 +1030,7 @@ h3 {
 .clear-rating:focus,
 .primary-action:focus,
 .secondary-action:focus,
+.from-choice:focus,
 .note-delete-button:focus,
 .file-picker:focus,
 .download-link:focus,
@@ -1098,6 +1133,16 @@ h3 {
 
   .card-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .from-picker {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .from-picker input {
+    grid-column: 1 / -1;
   }
 }
 

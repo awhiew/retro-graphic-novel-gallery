@@ -160,6 +160,7 @@ function bindControls() {
     render();
   });
 
+  setupFromPicker(masterNoteForm);
   masterNoteButton.addEventListener("click", () => showMasterNoteForm(true));
   cancelMasterNoteButton.addEventListener("click", () => showMasterNoteForm(false));
   masterNoteForm.addEventListener("submit", (event) => {
@@ -179,6 +180,26 @@ function bindControls() {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && !lightbox.hidden) closeLightbox();
   });
+}
+
+function setupFromPicker(scope) {
+  const picker = scope.querySelector("[data-from-picker]");
+  if (!picker) return;
+  const input = picker.querySelector("input");
+  const choices = [...picker.querySelectorAll("[data-from]")];
+  const updateActive = () => {
+    const value = String(input.value || "").trim();
+    choices.forEach((button) => button.classList.toggle("active", button.dataset.from === value));
+  };
+  choices.forEach((button) => {
+    button.addEventListener("click", () => {
+      input.value = button.dataset.from || "";
+      updateActive();
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+  });
+  input.addEventListener("input", updateActive);
+  updateActive();
 }
 
 function render() {
@@ -375,7 +396,11 @@ function createImageNoteThread(item, review) {
   form.hidden = true;
   form.innerHTML = `
     <label for="note-from-${escapeAttribute(slugId(item.file))}">From</label>
-    <input id="note-from-${escapeAttribute(slugId(item.file))}" type="text" maxlength="80" placeholder="Andrew or Hannah" autocomplete="name" required>
+    <div class="from-picker" data-from-picker>
+      <button class="from-choice" type="button" data-from="Andrew">Andrew</button>
+      <button class="from-choice" type="button" data-from="Hannah">Hannah</button>
+      <input id="note-from-${escapeAttribute(slugId(item.file))}" type="text" maxlength="80" placeholder="Other name" autocomplete="name" required>
+    </div>
     <label for="note-${escapeAttribute(slugId(item.file))}">New note</label>
     <textarea id="note-${escapeAttribute(slugId(item.file))}" maxlength="${maxNotesLength}" placeholder="Save a note for Andrew and Hannah" required></textarea>
     <div class="form-actions">
@@ -386,7 +411,8 @@ function createImageNoteThread(item, review) {
 
   const textarea = form.querySelector("textarea");
   const fromInput = form.querySelector("input");
-  const cancelButton = form.querySelector("button[type='button']");
+  const cancelButton = form.querySelector(".form-actions button[type='button']");
+  setupFromPicker(form);
   addButton.addEventListener("click", () => {
     addButton.hidden = true;
     form.hidden = false;
