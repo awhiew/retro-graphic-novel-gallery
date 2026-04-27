@@ -60,6 +60,7 @@ const sortSelect = document.querySelector("#sort-select");
 const filterButtons = [...document.querySelectorAll("[data-filter]")];
 const masterNoteButton = document.querySelector("#add-master-note");
 const masterNoteForm = document.querySelector("#master-note-form");
+const masterNoteFrom = document.querySelector("#master-note-from");
 const masterNoteText = document.querySelector("#master-note-text");
 const cancelMasterNoteButton = document.querySelector("#cancel-master-note");
 const masterNotesList = document.querySelector("#master-notes-list");
@@ -152,7 +153,7 @@ function bindControls() {
   cancelMasterNoteButton.addEventListener("click", () => showMasterNoteForm(false));
   masterNoteForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    appendMasterNote(masterNoteText.value);
+    appendMasterNote(masterNoteFrom.value, masterNoteText.value);
   });
 
   referenceForm.addEventListener("submit", (event) => {
@@ -354,8 +355,10 @@ function createImageNoteThread(item, review) {
   form.className = "note-form";
   form.hidden = true;
   form.innerHTML = `
+    <label for="note-from-${escapeAttribute(slugId(item.file))}">From</label>
+    <input id="note-from-${escapeAttribute(slugId(item.file))}" type="text" maxlength="80" placeholder="Andrew or Hannah" autocomplete="name" required>
     <label for="note-${escapeAttribute(slugId(item.file))}">New note</label>
-    <textarea id="note-${escapeAttribute(slugId(item.file))}" maxlength="${maxNotesLength}" placeholder="Save a note for Andrew and Hannah"></textarea>
+    <textarea id="note-${escapeAttribute(slugId(item.file))}" maxlength="${maxNotesLength}" placeholder="Save a note for Andrew and Hannah" required></textarea>
     <div class="form-actions">
       <button class="primary-action" type="submit">Save</button>
       <button class="secondary-action" type="button">Cancel</button>
@@ -363,20 +366,22 @@ function createImageNoteThread(item, review) {
   `;
 
   const textarea = form.querySelector("textarea");
+  const fromInput = form.querySelector("input");
   const cancelButton = form.querySelector("button[type='button']");
   addButton.addEventListener("click", () => {
     addButton.hidden = true;
     form.hidden = false;
-    textarea.focus();
+    fromInput.focus();
   });
   cancelButton.addEventListener("click", () => {
+    fromInput.value = "";
     textarea.value = "";
     form.hidden = true;
     addButton.hidden = false;
   });
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    appendImageNote(item.file, textarea.value);
+    appendImageNote(item.file, fromInput.value, textarea.value);
   });
 
   wrap.append(list, addButton, form);
@@ -398,7 +403,10 @@ function renderNoteThread(container, notes, emptyText) {
     const entry = document.createElement("article");
     entry.className = "note-entry";
     entry.innerHTML = `
-      <time datetime="${escapeAttribute(note.createdAt)}">${escapeHtml(formatDate(note.createdAt))}</time>
+      <div class="note-meta">
+        <span>${escapeHtml(getNoteAuthor(note))}</span>
+        <time datetime="${escapeAttribute(note.createdAt)}">${escapeHtml(formatDate(note.createdAt))}</time>
+      </div>
       <p>${escapeHtml(note.text)}</p>
     `;
     container.append(entry);
@@ -409,14 +417,15 @@ function showMasterNoteForm(show) {
   masterNoteForm.hidden = !show;
   masterNoteButton.hidden = show;
   if (show) {
-    masterNoteText.focus();
+    masterNoteFrom.focus();
   } else {
+    masterNoteFrom.value = "";
     masterNoteText.value = "";
   }
 }
 
-function appendMasterNote(text) {
-  const note = makeNote(text);
+function appendMasterNote(from, text) {
+  const note = makeNote(from, text);
   if (!note) return;
   boardState.masterNotes = mergeById(boardState.masterNotes, [note]);
   saveBoardState();
@@ -425,10 +434,10 @@ function appendMasterNote(text) {
   saveFullBoardToCloud();
 }
 
-function appendImageNote(file, text) {
+function appendImageNote(file, from, text) {
   const item = manifest.find((entry) => entry.file === file);
   if (!item) return;
-  const note = makeNote(text);
+  const note = makeNote(from, text);
   if (!note) return;
   const current = getReview(item);
   boardState.reviews[file] = {
@@ -682,6 +691,7 @@ function normalizeNotes(notes) {
   if (!Array.isArray(notes)) return [];
   return notes.map((note) => ({
     id: String(note?.id || ""),
+    from: String(note?.from || "").trim().slice(0, 80),
     text: String(note?.text || "").slice(0, maxNotesLength),
     createdAt: isIsoDate(note?.createdAt) ? note.createdAt : ""
   })).filter((note) => note.id && note.text.trim() && note.createdAt);
@@ -722,6 +732,7 @@ function getDisplayNotes(review) {
   if (review.notes.trim()) {
     notes.unshift({
       id: `legacy-${hashText(review.notes)}`,
+      from: "",
       text: review.notes,
       createdAt: review.updatedAt || new Date(0).toISOString()
     });
@@ -733,14 +744,23 @@ function hasReviewNotes(review) {
   return Boolean(review.notes.trim() || review.noteThread.some((note) => note.text.trim()));
 }
 
-function makeNote(text) {
+function makeNote(from, text) {
   const trimmed = String(text || "").trim().slice(0, maxNotesLength);
   if (!trimmed) return null;
   return {
     id: createId("note"),
+    from: normalizeNoteAuthor(from) || "Anonymous",
     text: trimmed,
     createdAt: new Date().toISOString()
   };
+}
+
+function normalizeNoteAuthor(from) {
+  return String(from || "").trim().slice(0, 80);
+}
+
+function getNoteAuthor(note) {
+  return normalizeNoteAuthor(note?.from) || "Unknown";
 }
 
 function createId(prefix) {

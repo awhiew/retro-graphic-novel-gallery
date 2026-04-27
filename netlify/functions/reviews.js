@@ -76,6 +76,7 @@ function applyAction(board, body, now) {
   if (body.action === "appendMasterNote") {
     const note = normalizeNote(body.note || {
       id: body.id,
+      from: body.from,
       text: body.text,
       createdAt: body.createdAt || now
     });
@@ -89,6 +90,7 @@ function applyAction(board, body, now) {
     if (!isSafeImagePath(file)) throw new Error("Invalid image file path");
     const note = normalizeNote(body.note || {
       id: body.id,
+      from: body.from,
       text: body.text,
       createdAt: body.createdAt || now
     });
@@ -281,10 +283,11 @@ function normalizeNotes(notes) {
 function normalizeNote(note) {
   if (!note || typeof note !== "object") return null;
   const id = String(note.id || "").slice(0, 120);
+  const from = String(note.from || "").trim().slice(0, 80);
   const text = String(note.text || "").trim().slice(0, maxNotesLength);
   const createdAt = isIsoDate(note.createdAt) ? note.createdAt : "";
   if (!id || !text || !createdAt) return null;
-  return { id, text, createdAt };
+  return { id, from, text, createdAt };
 }
 
 function normalizeReferences(references) {

@@ -94,8 +94,10 @@
               <p>Overall reactions, must-keep traits, and final art direction.</p>
             </div>
             <form id="master-note-form" class="note-form" hidden>
+              <label for="master-note-from">From</label>
+              <input id="master-note-from" type="text" maxlength="80" placeholder="Andrew or Hannah" autocomplete="name" required>
               <label for="master-note-text">New master note</label>
-              <textarea id="master-note-text" maxlength="5000" placeholder="Add a shared note for Andrew and Hannah"></textarea>
+              <textarea id="master-note-text" maxlength="5000" placeholder="Add a shared note for Andrew and Hannah" required></textarea>
               <div class="form-actions">
                 <button class="primary-action" type="submit">Save</button>
                 <button id="cancel-master-note" class="secondary-action" type="button">Cancel</button>
