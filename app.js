@@ -126,10 +126,10 @@ async function loadManifest() {
     const response = await fetch("image-manifest.json", { cache: "no-store" });
     if (!response.ok) throw new Error(`Manifest returned ${response.status}`);
     const data = await response.json();
-    statusEl.textContent = `Loaded ${data.length} images from image-manifest.json`;
+    statusEl.textContent = "";
     return normalizeManifest(data);
   } catch (error) {
-    statusEl.textContent = "Loaded fallback manifest for local file preview";
+    statusEl.textContent = "";
     return normalizeManifest(fallbackManifest);
   }
 }
