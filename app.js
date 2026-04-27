@@ -7,7 +7,7 @@ const maxReferenceFileSize = 20 * 1024 * 1024;
 const maxReferenceEncodedLength = 6 * 1024 * 1024;
 const referenceUploadTimeout = 20000;
 const cloudSaveDelay = 500;
-const cloudSyncInterval = 5000;
+const cloudSyncInterval = 15000;
 
 const groupDirections = {
   "Reference Redos": "Compare the core character silhouette, face, outfit language, and cover-read appeal.",
@@ -230,6 +230,22 @@ function render() {
   renderMasterPanel();
   renderSummary(filtered);
   renderGroups(filtered);
+}
+
+function hasOpenDraftForm() {
+  if ([...document.querySelectorAll(".note-form")].some((form) => !form.hidden)) return true;
+
+  const activeElement = document.activeElement;
+  if (
+    activeElement?.matches("textarea, input") &&
+    activeElement.closest(".note-form, .reference-form")
+  ) {
+    return true;
+  }
+
+  const selectedFile = referenceFile?.files && referenceFile.files.length > 0;
+  const draftCaption = Boolean(referenceCaption?.value.trim());
+  return Boolean(selectedFile || draftCaption);
 }
 
 function renderMasterPanel() {
@@ -817,7 +833,7 @@ async function syncReviewsFromCloud(options = {}) {
     const cloudBoard = normalizeBoardState(data);
     const localUpdates = mergeCloudBoard(cloudBoard);
     saveBoardState();
-    render();
+    if (!hasOpenDraftForm()) render();
     if (showStatus || cloudStatusEl?.textContent === "Cloud unavailable") setCloudStatus("Cloud synced");
     if (Object.keys(localUpdates).length || pendingFullCloudSave) saveFullBoardToCloud();
   } catch (error) {
