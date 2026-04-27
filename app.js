@@ -3,6 +3,7 @@ const reviewEndpoint =
   window.RETRO_REVIEW_API ||
   "https://retro-graphic-novel-review-api.netlify.app/.netlify/functions/reviews";
 const maxNotesLength = 5000;
+const maxReferenceEncodedLength = 3 * 1024 * 1024;
 const cloudSaveDelay = 500;
 
 const groupDirections = {
@@ -48,6 +49,16 @@ const cloudStatusEl = document.querySelector("#cloud-status");
 const summaryEl = document.querySelector("#summary-strip");
 const sortSelect = document.querySelector("#sort-select");
 const filterButtons = [...document.querySelectorAll("[data-filter]")];
+const masterNoteButton = document.querySelector("#add-master-note");
+const masterNoteForm = document.querySelector("#master-note-form");
+const masterNoteText = document.querySelector("#master-note-text");
+const cancelMasterNoteButton = document.querySelector("#cancel-master-note");
+const masterNotesList = document.querySelector("#master-notes-list");
+const referenceForm = document.querySelector("#reference-form");
+const referenceFile = document.querySelector("#reference-file");
+const referenceCaption = document.querySelector("#reference-caption");
+const referenceError = document.querySelector("#reference-error");
+const referenceList = document.querySelector("#reference-list");
 const lightbox = document.querySelector("#lightbox");
 const lightboxImage = lightbox.querySelector("img");
 const lightboxCaption = document.querySelector("#lightbox-caption");
@@ -55,17 +66,18 @@ const lightboxClose = document.querySelector(".lightbox-close");
 
 let manifest = [];
 let manifestFiles = new Set();
-let reviewState = loadReviewState();
+let boardState = loadBoardState();
 let activeFilter = "all";
 let activeSort = "original";
 let cloudTimer = 0;
 let pendingCloudFiles = new Set();
+let pendingFullCloudSave = false;
 
 const filters = {
   all: () => true,
   five: (item) => getReview(item).rating === 5,
   fourPlus: (item) => getReview(item).rating >= 4,
-  notes: (item) => getReview(item).notes.trim().length > 0,
+  notes: (item) => hasReviewNotes(getReview(item)),
   unrated: (item) => getReview(item).rating === 0
 };
 
@@ -74,8 +86,8 @@ init();
 async function init() {
   manifest = await loadManifest();
   manifestFiles = new Set(manifest.map((item) => item.file));
-  reviewState = filterReviewState(reviewState);
-  saveReviewState();
+  boardState.reviews = filterReviewState(boardState.reviews);
+  saveBoardState();
   render();
   bindControls();
   syncReviewsFromCloud();
@@ -127,6 +139,18 @@ function bindControls() {
     render();
   });
 
+  masterNoteButton.addEventListener("click", () => showMasterNoteForm(true));
+  cancelMasterNoteButton.addEventListener("click", () => showMasterNoteForm(false));
+  masterNoteForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    appendMasterNote(masterNoteText.value);
+  });
+
+  referenceForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    uploadReference();
+  });
+
   lightboxClose.addEventListener("click", closeLightbox);
   lightbox.addEventListener("click", (event) => {
     if (event.target === lightbox) closeLightbox();
@@ -138,8 +162,36 @@ function bindControls() {
 
 function render() {
   const filtered = getSortedItems().filter(filters[activeFilter] || filters.all);
+  renderMasterPanel();
   renderSummary(filtered);
   renderGroups(filtered);
+}
+
+function renderMasterPanel() {
+  renderNoteThread(masterNotesList, boardState.masterNotes, "No master notes saved yet.");
+  referenceList.innerHTML = "";
+  if (!boardState.references.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-inline";
+    empty.textContent = "No reference uploads yet.";
+    referenceList.append(empty);
+    return;
+  }
+
+  getSortedByCreatedAt(boardState.references).forEach((reference) => {
+    const item = document.createElement("article");
+    item.className = "reference-item";
+    const caption = reference.caption || reference.name;
+    item.innerHTML = `
+      <img src="${escapeAttribute(reference.dataUrl)}" alt="${escapeAttribute(caption)}" loading="lazy">
+      <div>
+        <strong>${escapeHtml(caption)}</strong>
+        <time datetime="${escapeAttribute(reference.createdAt)}">${escapeHtml(formatDate(reference.createdAt))}</time>
+        <span>${escapeHtml(reference.name)}</span>
+      </div>
+    `;
+    referenceList.append(item);
+  });
 }
 
 function getSortedItems() {
@@ -159,7 +211,7 @@ function renderSummary(items) {
   const total = manifest.length;
   const visible = items.length;
   const five = all.filter((item) => item.rating === 5).length;
-  const noted = all.filter((item) => item.notes.trim()).length;
+  const noted = all.filter(hasReviewNotes).length;
   const average = all.length
     ? (all.reduce((sum, item) => sum + item.rating, 0) / all.length).toFixed(1)
     : "0.0";
@@ -259,7 +311,7 @@ function createCard(item) {
     button.textContent = "★";
     button.title = `${rating} star`;
     button.setAttribute("aria-label", `Rate ${item.title} ${rating} star`);
-    button.addEventListener("click", () => updateReview(item.file, { rating }));
+    button.addEventListener("click", () => updateRating(item.file, rating));
     ratingRow.append(button);
   }
 
@@ -267,25 +319,182 @@ function createCard(item) {
   clearButton.className = "clear-rating";
   clearButton.type = "button";
   clearButton.textContent = "Unrate";
-  clearButton.addEventListener("click", () => updateReview(item.file, { rating: 0 }));
+  clearButton.addEventListener("click", () => updateRating(item.file, 0));
   ratingRow.append(clearButton);
 
-  const label = document.createElement("label");
-  label.className = "notes-label";
-  label.textContent = "Notes for review";
-
-  const textarea = document.createElement("textarea");
-  textarea.className = "notes-field";
-  textarea.maxLength = maxNotesLength;
-  textarea.value = review.notes;
-  textarea.placeholder = "Notes for review";
-  textarea.setAttribute("aria-label", `Notes for review: ${item.title}`);
-  textarea.addEventListener("input", () => updateReview(item.file, { notes: textarea.value }, false));
-  label.append(textarea);
-
-  body.append(downloadLink, ratingRow, label);
+  const thread = createImageNoteThread(item, review);
+  body.append(downloadLink, ratingRow, thread);
   card.append(imageButton, body);
   return card;
+}
+
+function createImageNoteThread(item, review) {
+  const wrap = document.createElement("div");
+  wrap.className = "image-note-area";
+
+  const list = document.createElement("div");
+  list.className = "note-thread";
+  renderNoteThread(list, getDisplayNotes(review), "No notes saved for this image.");
+
+  const addButton = document.createElement("button");
+  addButton.className = "secondary-action";
+  addButton.type = "button";
+  addButton.textContent = "Add note";
+
+  const form = document.createElement("form");
+  form.className = "note-form";
+  form.hidden = true;
+  form.innerHTML = `
+    <label for="note-${escapeAttribute(slugId(item.file))}">New note</label>
+    <textarea id="note-${escapeAttribute(slugId(item.file))}" maxlength="${maxNotesLength}" placeholder="Save a note for Andrew and Hannah"></textarea>
+    <div class="form-actions">
+      <button class="primary-action" type="submit">Save</button>
+      <button class="secondary-action" type="button">Cancel</button>
+    </div>
+  `;
+
+  const textarea = form.querySelector("textarea");
+  const cancelButton = form.querySelector("button[type='button']");
+  addButton.addEventListener("click", () => {
+    addButton.hidden = true;
+    form.hidden = false;
+    textarea.focus();
+  });
+  cancelButton.addEventListener("click", () => {
+    textarea.value = "";
+    form.hidden = true;
+    addButton.hidden = false;
+  });
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    appendImageNote(item.file, textarea.value);
+  });
+
+  wrap.append(list, addButton, form);
+  return wrap;
+}
+
+function renderNoteThread(container, notes, emptyText) {
+  container.innerHTML = "";
+  const visibleNotes = getSortedByCreatedAt(notes).filter((note) => note.text.trim());
+  if (!visibleNotes.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-inline";
+    empty.textContent = emptyText;
+    container.append(empty);
+    return;
+  }
+
+  visibleNotes.forEach((note) => {
+    const entry = document.createElement("article");
+    entry.className = "note-entry";
+    entry.innerHTML = `
+      <time datetime="${escapeAttribute(note.createdAt)}">${escapeHtml(formatDate(note.createdAt))}</time>
+      <p>${escapeHtml(note.text)}</p>
+    `;
+    container.append(entry);
+  });
+}
+
+function showMasterNoteForm(show) {
+  masterNoteForm.hidden = !show;
+  masterNoteButton.hidden = show;
+  if (show) {
+    masterNoteText.focus();
+  } else {
+    masterNoteText.value = "";
+  }
+}
+
+function appendMasterNote(text) {
+  const note = makeNote(text);
+  if (!note) return;
+  boardState.masterNotes = mergeById(boardState.masterNotes, [note]);
+  saveBoardState();
+  showMasterNoteForm(false);
+  render();
+  saveFullBoardToCloud();
+}
+
+function appendImageNote(file, text) {
+  const item = manifest.find((entry) => entry.file === file);
+  if (!item) return;
+  const note = makeNote(text);
+  if (!note) return;
+  const current = getReview(item);
+  boardState.reviews[file] = {
+    ...current,
+    noteThread: mergeById(current.noteThread, [note]),
+    updatedAt: note.createdAt
+  };
+  saveBoardState();
+  render();
+  saveFullBoardToCloud();
+}
+
+function updateRating(file, rating) {
+  const item = manifest.find((entry) => entry.file === file);
+  if (!item) return;
+  const current = getReview(item);
+  boardState.reviews[file] = cleanReview({
+    ...current,
+    rating: normalizeRating(rating),
+    updatedAt: new Date().toISOString()
+  });
+  saveBoardState();
+  queueCloudSave(file);
+  render();
+}
+
+async function uploadReference() {
+  referenceError.textContent = "";
+  const file = referenceFile.files && referenceFile.files[0];
+  if (!file) {
+    referenceError.textContent = "Choose an image before saving.";
+    return;
+  }
+  if (!file.type || !file.type.startsWith("image/")) {
+    referenceError.textContent = "Reference uploads must be image files.";
+    return;
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    referenceError.textContent = "That image is too large. Please upload one under 2 MB.";
+    return;
+  }
+
+  try {
+    const dataUrl = await readFileAsDataUrl(file);
+    if (!isValidReferenceDataUrl(dataUrl)) {
+      referenceError.textContent = "That image is too large or not a supported image data URL.";
+      return;
+    }
+    const now = new Date().toISOString();
+    const reference = {
+      id: createId("ref"),
+      name: file.name || "reference image",
+      type: file.type,
+      dataUrl,
+      createdAt: now,
+      caption: referenceCaption.value.trim().slice(0, 180)
+    };
+    boardState.references = mergeById(boardState.references, [reference]);
+    referenceFile.value = "";
+    referenceCaption.value = "";
+    saveBoardState();
+    render();
+    saveFullBoardToCloud();
+  } catch (error) {
+    referenceError.textContent = "The image could not be read. Try a different file.";
+  }
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => resolve(String(reader.result || "")));
+    reader.addEventListener("error", () => reject(reader.error));
+    reader.readAsDataURL(file);
+  });
 }
 
 function getDownloadFilename(item) {
@@ -303,27 +512,13 @@ function getDownloadFilename(item) {
 }
 
 function getReview(item) {
-  const saved = reviewState[item.file] || {};
-  return {
-    rating: normalizeRating(saved.rating ?? item.rating),
-    notes: String(saved.notes ?? item.notes ?? "").slice(0, maxNotesLength),
-    updatedAt: isIsoDate(saved.updatedAt) ? saved.updatedAt : ""
-  };
-}
-
-function updateReview(file, patch, shouldRender = true) {
-  const item = manifest.find((entry) => entry.file === file);
-  if (!item) return;
-  const current = getReview(item);
-  reviewState[file] = {
-    rating: normalizeRating(patch.rating ?? current.rating),
-    notes: String(patch.notes ?? current.notes).slice(0, maxNotesLength),
-    updatedAt: new Date().toISOString()
-  };
-  saveReviewState();
-  queueCloudSave(file);
-  if (shouldRender) render();
-  if (!shouldRender) renderSummary(getSortedItems().filter(filters[activeFilter] || filters.all));
+  const saved = boardState.reviews[item.file] || {};
+  return cleanReview({
+    rating: saved.rating ?? item.rating,
+    notes: saved.notes ?? item.notes,
+    noteThread: saved.noteThread,
+    updatedAt: saved.updatedAt
+  });
 }
 
 async function syncReviewsFromCloud() {
@@ -332,32 +527,41 @@ async function syncReviewsFromCloud() {
     const response = await fetch(reviewEndpoint, { cache: "no-store" });
     if (!response.ok) throw new Error(`Reviews returned ${response.status}`);
     const data = await response.json();
-    const cloudReviews = normalizeReviewMap(data.reviews || {});
-    const localUpdates = mergeCloudReviews(cloudReviews);
-    Object.entries(reviewState).forEach(([file, review]) => {
-      if (!cloudReviews[file] && isIsoDate(review.updatedAt)) localUpdates[file] = review;
-    });
-    saveReviewState();
+    const cloudBoard = normalizeBoardState(data);
+    const localUpdates = mergeCloudBoard(cloudBoard);
+    saveBoardState();
     render();
     setCloudStatus("Cloud synced");
-    if (Object.keys(localUpdates).length) queueCloudSave(localUpdates);
+    if (Object.keys(localUpdates).length || pendingFullCloudSave) saveFullBoardToCloud();
   } catch (error) {
     setCloudStatus("Cloud unavailable");
   }
 }
 
-function mergeCloudReviews(cloudReviews) {
+function mergeCloudBoard(cloudBoard) {
   const localUpdates = {};
-  Object.entries(cloudReviews).forEach(([file, cloudReview]) => {
-    const localReview = reviewState[file];
+  boardState.masterNotes = mergeById(boardState.masterNotes, cloudBoard.masterNotes);
+  boardState.references = mergeById(boardState.references, cloudBoard.references);
+
+  Object.entries(cloudBoard.reviews).forEach(([file, cloudReview]) => {
+    const localReview = boardState.reviews[file];
+    const mergedThread = mergeById(localReview?.noteThread || [], cloudReview.noteThread || []);
     if (!localReview || isNewer(cloudReview.updatedAt, localReview.updatedAt)) {
-      reviewState[file] = cloudReview;
+      boardState.reviews[file] = cleanReview({ ...cloudReview, noteThread: mergedThread });
       return;
     }
     if (isNewer(localReview.updatedAt, cloudReview.updatedAt)) {
-      localUpdates[file] = localReview;
+      localUpdates[file] = cleanReview({ ...localReview, noteThread: mergedThread });
+      boardState.reviews[file] = localUpdates[file];
+      return;
     }
+    boardState.reviews[file] = cleanReview({ ...localReview, noteThread: mergedThread });
   });
+
+  Object.entries(boardState.reviews).forEach(([file, review]) => {
+    if (!cloudBoard.reviews[file] && isIsoDate(review.updatedAt)) localUpdates[file] = review;
+  });
+  boardState.reviews = filterReviewState(boardState.reviews);
   return localUpdates;
 }
 
@@ -375,7 +579,7 @@ function queueCloudSave(files) {
 async function savePendingReviewsToCloud() {
   const reviews = {};
   pendingCloudFiles.forEach((file) => {
-    if (reviewState[file]) reviews[file] = reviewState[file];
+    if (boardState.reviews[file]) reviews[file] = boardState.reviews[file];
   });
   pendingCloudFiles.clear();
   if (!Object.keys(reviews).length) return;
@@ -388,9 +592,8 @@ async function savePendingReviewsToCloud() {
     });
     if (!response.ok) throw new Error(`Save returned ${response.status}`);
     const data = await response.json();
-    const cloudReviews = normalizeReviewMap(data.reviews || {});
-    mergeCloudReviews(cloudReviews);
-    saveReviewState();
+    mergeCloudBoard(normalizeBoardState(data));
+    saveBoardState();
     render();
     setCloudStatus("Cloud saved");
   } catch (error) {
@@ -399,15 +602,50 @@ async function savePendingReviewsToCloud() {
   }
 }
 
+async function saveFullBoardToCloud() {
+  pendingFullCloudSave = true;
+  setCloudStatus("Saving");
+  try {
+    const response = await fetch(reviewEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(toCloudBoard(boardState))
+    });
+    if (!response.ok) throw new Error(`Save returned ${response.status}`);
+    const data = await response.json();
+    pendingFullCloudSave = false;
+    mergeCloudBoard(normalizeBoardState(data));
+    saveBoardState();
+    render();
+    setCloudStatus("Cloud saved");
+  } catch (error) {
+    setCloudStatus("Cloud unavailable");
+  }
+}
+
+function toCloudBoard(state) {
+  return {
+    reviews: state.reviews,
+    masterNotes: state.masterNotes,
+    references: state.references,
+    updatedAt: new Date().toISOString()
+  };
+}
+
+function normalizeBoardState(data) {
+  return {
+    reviews: normalizeReviewMap(data.reviews || data),
+    masterNotes: normalizeNotes(data.masterNotes || []),
+    references: normalizeReferences(data.references || []),
+    updatedAt: isIsoDate(data.updatedAt) ? data.updatedAt : ""
+  };
+}
+
 function normalizeReviewMap(reviews) {
   const normalized = {};
   Object.entries(reviews || {}).forEach(([file, review]) => {
     if (!manifestFiles.has(file) || !review || typeof review !== "object") return;
-    normalized[file] = {
-      rating: normalizeRating(review.rating),
-      notes: String(review.notes || "").slice(0, maxNotesLength),
-      updatedAt: isIsoDate(review.updatedAt) ? review.updatedAt : new Date().toISOString()
-    };
+    normalized[file] = cleanReview(review);
   });
   return normalized;
 }
@@ -416,13 +654,102 @@ function filterReviewState(state) {
   const filtered = {};
   Object.entries(state || {}).forEach(([file, review]) => {
     if (!manifestFiles.has(file) || !review || typeof review !== "object") return;
-    filtered[file] = {
-      rating: normalizeRating(review.rating),
-      notes: String(review.notes || "").slice(0, maxNotesLength),
-      updatedAt: isIsoDate(review.updatedAt) ? review.updatedAt : ""
-    };
+    const cleaned = cleanReview(review);
+    if (cleaned.rating || hasReviewNotes(cleaned)) filtered[file] = cleaned;
   });
   return filtered;
+}
+
+function cleanReview(review) {
+  return {
+    rating: normalizeRating(review.rating),
+    notes: String(review.notes || "").slice(0, maxNotesLength),
+    noteThread: normalizeNotes(review.noteThread || []),
+    updatedAt: isIsoDate(review.updatedAt) ? review.updatedAt : ""
+  };
+}
+
+function normalizeNotes(notes) {
+  if (!Array.isArray(notes)) return [];
+  return notes.map((note) => ({
+    id: String(note?.id || ""),
+    text: String(note?.text || "").slice(0, maxNotesLength),
+    createdAt: isIsoDate(note?.createdAt) ? note.createdAt : ""
+  })).filter((note) => note.id && note.text.trim() && note.createdAt);
+}
+
+function normalizeReferences(references) {
+  if (!Array.isArray(references)) return [];
+  return references.map((reference) => ({
+    id: String(reference?.id || ""),
+    name: String(reference?.name || "reference image").slice(0, 180),
+    type: String(reference?.type || "").slice(0, 80),
+    dataUrl: String(reference?.dataUrl || ""),
+    createdAt: isIsoDate(reference?.createdAt) ? reference.createdAt : "",
+    caption: String(reference?.caption || "").slice(0, 180)
+  })).filter((reference) => (
+    reference.id &&
+    reference.createdAt &&
+    isValidReferenceDataUrl(reference.dataUrl)
+  ));
+}
+
+function mergeById(localItems, cloudItems) {
+  const merged = new Map();
+  [...normalizeArray(localItems), ...normalizeArray(cloudItems)].forEach((item) => {
+    if (!item || !item.id) return;
+    const existing = merged.get(item.id);
+    if (!existing || isNewer(item.createdAt, existing.createdAt)) merged.set(item.id, item);
+  });
+  return getSortedByCreatedAt([...merged.values()]);
+}
+
+function normalizeArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function getDisplayNotes(review) {
+  const notes = [...review.noteThread];
+  if (review.notes.trim()) {
+    notes.unshift({
+      id: `legacy-${hashText(review.notes)}`,
+      text: review.notes,
+      createdAt: review.updatedAt || new Date(0).toISOString()
+    });
+  }
+  return notes;
+}
+
+function hasReviewNotes(review) {
+  return Boolean(review.notes.trim() || review.noteThread.some((note) => note.text.trim()));
+}
+
+function makeNote(text) {
+  const trimmed = String(text || "").trim().slice(0, maxNotesLength);
+  if (!trimmed) return null;
+  return {
+    id: createId("note"),
+    text: trimmed,
+    createdAt: new Date().toISOString()
+  };
+}
+
+function createId(prefix) {
+  const random = Math.random().toString(36).slice(2, 10);
+  return `${prefix}-${Date.now().toString(36)}-${random}`;
+}
+
+function getSortedByCreatedAt(items) {
+  return [...normalizeArray(items)].sort((a, b) => {
+    const aTime = Date.parse(a.createdAt || "") || 0;
+    const bTime = Date.parse(b.createdAt || "") || 0;
+    return aTime - bTime;
+  });
+}
+
+function isValidReferenceDataUrl(dataUrl) {
+  return /^data:image\/[a-z0-9.+-]+;base64,[a-z0-9+/=]+$/i.test(dataUrl) &&
+    dataUrl.length <= maxReferenceEncodedLength;
 }
 
 function setCloudStatus(message) {
@@ -444,17 +771,41 @@ function isIsoDate(value) {
   return typeof value === "string" && Number.isFinite(Date.parse(value));
 }
 
-function loadReviewState() {
+function loadBoardState() {
   try {
     const stored = JSON.parse(localStorage.getItem(storageKey) || "{}");
-    return stored && typeof stored === "object" && !Array.isArray(stored) ? stored : {};
+    if (!stored || typeof stored !== "object" || Array.isArray(stored)) return makeEmptyBoard();
+    if (stored.reviews || stored.masterNotes || stored.references) {
+      return {
+        reviews: stored.reviews && typeof stored.reviews === "object" ? stored.reviews : {},
+        masterNotes: normalizeNotes(stored.masterNotes || []),
+        references: normalizeReferences(stored.references || []),
+        updatedAt: isIsoDate(stored.updatedAt) ? stored.updatedAt : ""
+      };
+    }
+    return {
+      reviews: stored,
+      masterNotes: [],
+      references: [],
+      updatedAt: ""
+    };
   } catch {
-    return {};
+    return makeEmptyBoard();
   }
 }
 
-function saveReviewState() {
-  localStorage.setItem(storageKey, JSON.stringify(reviewState));
+function makeEmptyBoard() {
+  return {
+    reviews: {},
+    masterNotes: [],
+    references: [],
+    updatedAt: ""
+  };
+}
+
+function saveBoardState() {
+  boardState.updatedAt = new Date().toISOString();
+  localStorage.setItem(storageKey, JSON.stringify(boardState));
 }
 
 function openLightbox(item) {
@@ -470,6 +821,26 @@ function closeLightbox() {
   lightbox.hidden = true;
   lightboxImage.src = "";
   document.body.style.overflow = "";
+}
+
+function formatDate(value) {
+  if (!isIsoDate(value)) return "Unknown time";
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short"
+  }).format(new Date(value));
+}
+
+function slugId(value) {
+  return String(value).replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "") || "image";
+}
+
+function hashText(value) {
+  let hash = 0;
+  String(value).split("").forEach((char) => {
+    hash = ((hash << 5) - hash + char.charCodeAt(0)) | 0;
+  });
+  return Math.abs(hash).toString(36);
 }
 
 function escapeHtml(value) {

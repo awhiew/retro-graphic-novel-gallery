@@ -76,6 +76,42 @@
           </div>
         </div>
 
+        <section class="master-panel" aria-labelledby="master-notes-title">
+          <div class="master-panel-header">
+            <div>
+              <p class="eyebrow">Shared review workspace</p>
+              <h3 id="master-notes-title">Master notes for review</h3>
+            </div>
+            <button id="add-master-note" class="primary-action" type="button">Add master note</button>
+          </div>
+
+          <form id="master-note-form" class="note-form" hidden>
+            <label for="master-note-text">New master note</label>
+            <textarea id="master-note-text" maxlength="5000" placeholder="Add a shared note for Andrew and Hannah"></textarea>
+            <div class="form-actions">
+              <button class="primary-action" type="submit">Save</button>
+              <button id="cancel-master-note" class="secondary-action" type="button">Cancel</button>
+            </div>
+          </form>
+
+          <div id="master-notes-list" class="note-thread" aria-live="polite"></div>
+
+          <div class="reference-upload" aria-labelledby="reference-upload-title">
+            <div>
+              <h4 id="reference-upload-title">Reference uploads</h4>
+              <p>Upload image references to the shared board.</p>
+            </div>
+            <form id="reference-form" class="reference-form">
+              <label class="file-picker" for="reference-file">Upload reference</label>
+              <input id="reference-file" type="file" accept="image/*">
+              <input id="reference-caption" type="text" maxlength="180" placeholder="Optional caption">
+              <button class="primary-action" type="submit">Save</button>
+            </form>
+            <p id="reference-error" class="form-error" aria-live="polite"></p>
+            <div id="reference-list" class="reference-list" aria-live="polite"></div>
+          </div>
+        </section>
+
         <div class="review-toolbar" aria-label="Gallery review tools">
           <div class="toolbar-row">
             <span class="toolbar-label">Filter</span>
