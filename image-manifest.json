@@ -113,24 +113,24 @@
   },
   {
     "file": "assets/images/15-roxy_vega_01_cute_retro_pulp_romance.png",
-    "title": "Cute Retro Pulp Romance",
-    "group": "Cute-Sexy Style Anchors",
+    "title": "Retro Pulp Cover Study",
+    "group": "Character Style Anchors",
     "rating": 0,
     "notes": "",
     "direction": "Judge whether this balances charm, confidence, softness, and memorable lead-character appeal."
   },
   {
     "file": "assets/images/16-roxy_vega_02_kawaii_space_noir.png",
-    "title": "Kawaii Space Noir",
-    "group": "Cute-Sexy Style Anchors",
+    "title": "Neon Starport Mystery",
+    "group": "Character Style Anchors",
     "rating": 0,
     "notes": "",
     "direction": "Judge whether this balances charm, confidence, softness, and memorable lead-character appeal."
   },
   {
     "file": "assets/images/17-roxy_vega_03_dreamy_anime_gouache.png",
-    "title": "Dreamy Anime Gouache",
-    "group": "Cute-Sexy Style Anchors",
+    "title": "Painterly Character Warmth",
+    "group": "Character Style Anchors",
     "rating": 0,
     "notes": "",
     "direction": "Judge whether this balances charm, confidence, softness, and memorable lead-character appeal."
@@ -138,7 +138,7 @@
   {
     "file": "assets/images/18-roxy_vega_01_space_diner.png",
     "title": "Space Diner",
-    "group": "Cute-Sexy Scene Variations",
+    "group": "Story-World Scene Variations",
     "rating": 0,
     "notes": "",
     "direction": "Review how the character and companion read in a story moment with clear setting and mood."
@@ -146,7 +146,7 @@
   {
     "file": "assets/images/19-roxy_vega_02_raygun_scooter.png",
     "title": "Raygun Scooter",
-    "group": "Cute-Sexy Scene Variations",
+    "group": "Story-World Scene Variations",
     "rating": 0,
     "notes": "",
     "direction": "Review how the character and companion read in a story moment with clear setting and mood."
@@ -154,7 +154,7 @@
   {
     "file": "assets/images/20-roxy_vega_03_starship_cockpit.png",
     "title": "Starship Cockpit",
-    "group": "Cute-Sexy Scene Variations",
+    "group": "Story-World Scene Variations",
     "rating": 0,
     "notes": "",
     "direction": "Review how the character and companion read in a story moment with clear setting and mood."
@@ -162,7 +162,7 @@
   {
     "file": "assets/images/21-roxy_vega_04_alien_beach.png",
     "title": "Alien Beach",
-    "group": "Cute-Sexy Scene Variations",
+    "group": "Story-World Scene Variations",
     "rating": 0,
     "notes": "",
     "direction": "Review how the character and companion read in a story moment with clear setting and mood."
@@ -170,7 +170,7 @@
   {
     "file": "assets/images/22-roxy_vega_05_moon_lounge.png",
     "title": "Moon Lounge",
-    "group": "Cute-Sexy Scene Variations",
+    "group": "Story-World Scene Variations",
     "rating": 0,
     "notes": "",
     "direction": "Review how the character and companion read in a story moment with clear setting and mood."
@@ -178,7 +178,7 @@
   {
     "file": "assets/images/23-roxy_vega_06_galaxy_map_room.png",
     "title": "Galaxy Map Room",
-    "group": "Cute-Sexy Scene Variations",
+    "group": "Story-World Scene Variations",
     "rating": 0,
     "notes": "",
     "direction": "Review how the character and companion read in a story moment with clear setting and mood."
@@ -186,7 +186,7 @@
   {
     "file": "assets/images/24-roxy_vega_07_space_mechanic.png",
     "title": "Space Mechanic",
-    "group": "Cute-Sexy Scene Variations",
+    "group": "Story-World Scene Variations",
     "rating": 0,
     "notes": "",
     "direction": "Review how the character and companion read in a story moment with clear setting and mood."
@@ -194,7 +194,7 @@
   {
     "file": "assets/images/25-roxy_vega_08_alien_garden.png",
     "title": "Alien Garden",
-    "group": "Cute-Sexy Scene Variations",
+    "group": "Story-World Scene Variations",
     "rating": 0,
     "notes": "",
     "direction": "Review how the character and companion read in a story moment with clear setting and mood."
@@ -202,7 +202,7 @@
   {
     "file": "assets/images/26-roxy_vega_09_bounty_poster_chase.png",
     "title": "Bounty Poster Chase",
-    "group": "Cute-Sexy Scene Variations",
+    "group": "Story-World Scene Variations",
     "rating": 0,
     "notes": "",
     "direction": "Review how the character and companion read in a story moment with clear setting and mood."
@@ -210,7 +210,7 @@
   {
     "file": "assets/images/27-roxy_vega_10_first_issue_hero.png",
     "title": "First Issue Hero",
-    "group": "Cute-Sexy Scene Variations",
+    "group": "Story-World Scene Variations",
     "rating": 0,
     "notes": "",
     "direction": "Review how the character and companion read in a story moment with clear setting and mood."

@@ -1,12 +1,10 @@
 # Retro Graphic Novel Art Board
 
-A static review board for Andrew's retro graphic novel character exploration. The gallery loads `image-manifest.json`, renders the image set, and provides ratings and review notes that can sync through a Netlify function endpoint.
+A static review board for Andrew's retro graphic novel world-building and art direction exploration. The gallery loads `image-manifest.json`, renders the image set, and provides ratings and review notes that can sync through a Netlify function endpoint.
 
 ## Project Direction
 
-The strongest route is cute-sexy retro pulp romance + kawaii space noir + dreamy anime-gouache.
-
-The character should read as a pink-haired alien rebel pilot with a cute astronaut helmet cat, mixing glossy pulp cover appeal, soft painterly anime warmth, and neon space-noir trouble.
+Use the board to explore the graphic novel's visual language: character roles, environments, color systems, tone, charm, danger, humour, and repeatable visual rules.
 
 ## Files
 
