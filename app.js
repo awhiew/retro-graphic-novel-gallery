@@ -187,7 +187,7 @@ function setupFromPicker(scope) {
   if (!picker) return;
   const input = picker.querySelector("input");
   const choices = [...picker.querySelectorAll("[data-from]")];
-  if (input && !input.value) input.value = "Andrew";
+  if (input && !input.value) input.value = "Hannah";
   choices.forEach((button) => {
     button.addEventListener("click", () => {
       input.value = button.dataset.from || "";
@@ -411,7 +411,7 @@ function createImageNoteThread(item, review) {
     <div class="from-picker" data-from-picker>
       <button class="from-choice" type="button" data-from="Andrew">Andrew</button>
       <button class="from-choice" type="button" data-from="Hannah">Hannah</button>
-      <input id="note-from-${escapeAttribute(slugId(item.file))}" type="hidden" value="Andrew">
+      <input id="note-from-${escapeAttribute(slugId(item.file))}" type="hidden" value="Hannah">
     </div>
     <label for="note-${escapeAttribute(slugId(item.file))}">New note</label>
     <textarea id="note-${escapeAttribute(slugId(item.file))}" maxlength="${maxNotesLength}" placeholder="Save a note for Andrew and Hannah" required></textarea>
@@ -431,7 +431,7 @@ function createImageNoteThread(item, review) {
     textarea.focus();
   });
   cancelButton.addEventListener("click", () => {
-    setFromPickerValue(form, "Andrew");
+    setFromPickerValue(form, "Hannah");
     textarea.value = "";
     form.hidden = true;
     addButton.hidden = false;
@@ -490,7 +490,7 @@ function showMasterNoteForm(show) {
   if (show) {
     masterNoteText.focus();
   } else {
-    setFromPickerValue(masterNoteForm, "Andrew");
+    setFromPickerValue(masterNoteForm, "Hannah");
     masterNoteText.value = "";
   }
 }
