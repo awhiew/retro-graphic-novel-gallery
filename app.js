@@ -231,7 +231,7 @@ function render() {
 
 function renderMasterPanel() {
   renderNoteThread(masterNotesList, boardState.masterNotes, "No master notes saved yet.", {
-    onDelete: deleteMasterNote
+    onDelete: (note) => deleteMasterNote(note.id)
   });
   referenceList.innerHTML = "";
   if (!boardState.references.length) {
