@@ -968,6 +968,14 @@ h3 {
   color: #8b6679;
 }
 
+.card-number {
+  color: var(--accent);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.78em;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
 .card-direction {
   margin: 0;
   color: #6b5d65;

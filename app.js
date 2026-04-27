@@ -329,14 +329,15 @@ function renderGroups(items) {
 
 function createCard(item) {
   const review = getReview(item);
+  const displayTitle = getDisplayTitle(item);
   const card = document.createElement("article");
   card.className = "image-card";
 
   const imageButton = document.createElement("button");
   imageButton.className = "image-button";
   imageButton.type = "button";
-  imageButton.setAttribute("aria-label", `Open ${item.title} preview`);
-  imageButton.innerHTML = `<img src="${escapeAttribute(item.file)}" alt="${escapeAttribute(item.title)}" loading="lazy">`;
+  imageButton.setAttribute("aria-label", `Open ${displayTitle} preview`);
+  imageButton.innerHTML = `<img src="${escapeAttribute(item.file)}" alt="${escapeAttribute(displayTitle)}" loading="lazy">`;
   imageButton.addEventListener("click", () => openLightbox(item));
 
   const body = document.createElement("div");
@@ -344,7 +345,7 @@ function createCard(item) {
   body.innerHTML = `
     <div class="card-title-row">
       <span class="card-meta">${escapeHtml(item.group)}</span>
-      <h4>${escapeHtml(item.title)}</h4>
+      <h4><span class="card-number">#${item.index + 1}</span> ${escapeHtml(item.title)}</h4>
     </div>
   `;
 
@@ -1083,10 +1084,15 @@ function saveBoardState() {
   localStorage.setItem(storageKey, JSON.stringify(boardState));
 }
 
+function getDisplayTitle(item) {
+  return `#${item.index + 1} ${item.title}`;
+}
+
 function openLightbox(item) {
+  const displayTitle = getDisplayTitle(item);
   lightboxImage.src = item.file;
-  lightboxImage.alt = item.title;
-  lightboxCaption.textContent = `${item.title} · ${item.group}`;
+  lightboxImage.alt = displayTitle;
+  lightboxCaption.textContent = `${displayTitle} · ${item.group}`;
   lightbox.hidden = false;
   document.body.style.overflow = "hidden";
   lightboxClose.focus();
