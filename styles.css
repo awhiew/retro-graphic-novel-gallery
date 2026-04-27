@@ -137,7 +137,7 @@ main {
   grid-template-columns: minmax(0, 1fr);
   gap: 16px;
   min-width: 0;
-  padding: clamp(28px, 6vw, 72px) 0 26px;
+  padding: clamp(28px, 6vw, 72px) 0 18px;
 }
 
 .hero-copy {
@@ -234,6 +234,10 @@ h3 {
   border-top: 1px solid rgba(255, 247, 239, 0.18);
 }
 
+.direction-section {
+  padding-top: clamp(14px, 3vw, 28px);
+}
+
 .section-heading {
   display: grid;
   gap: 8px;
@@ -283,6 +287,16 @@ h3 {
   margin: 0;
   color: #5f5159;
   line-height: 1.55;
+}
+
+.direction-card h2 {
+  color: var(--plum);
+  text-shadow: none;
+}
+
+.direction-card span {
+  color: #8b4d71;
+  font-weight: 900;
 }
 
 .review-toolbar {
@@ -408,6 +422,14 @@ h3 {
 .master-panel .file-picker:hover {
   transform: translateY(-1px);
   box-shadow: 0 14px 28px rgba(56, 32, 52, 0.18);
+}
+
+.master-panel .primary-action:disabled,
+.master-panel .secondary-action:disabled,
+.master-panel .file-picker:disabled {
+  cursor: wait;
+  opacity: 0.66;
+  transform: none;
 }
 
 .review-select {
@@ -621,6 +643,7 @@ h3 {
 .reference-item span,
 .empty-inline,
 .reference-upload p,
+.upload-status,
 .form-error {
   color: var(--muted);
   font-size: 12px;
@@ -670,6 +693,7 @@ h3 {
 .note-entry p,
 .empty-inline,
 .reference-upload p,
+.upload-status,
 .form-error {
   margin: 0;
 }
@@ -709,6 +733,23 @@ h3 {
   white-space: nowrap;
 }
 
+.reference-form.is-saving .primary-action::before {
+  width: 12px;
+  height: 12px;
+  margin-right: 7px;
+  border: 2px solid rgba(255, 250, 247, 0.38);
+  border-top-color: #fffaf7;
+  border-radius: 999px;
+  content: "";
+  animation: spin 850ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .reference-form input[type="text"] {
   min-height: 34px;
   min-width: 0;
@@ -717,6 +758,54 @@ h3 {
   border-radius: 999px;
   background: rgba(255, 253, 250, 0.9);
   color: var(--ink);
+}
+
+.reference-preview {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid rgba(127, 201, 189, 0.26);
+  border-radius: 8px;
+  background: rgba(255, 253, 250, 0.78);
+}
+
+.reference-preview[hidden] {
+  display: none;
+}
+
+.reference-preview img {
+  width: 58px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #211620;
+}
+
+.reference-preview div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.reference-preview strong,
+.reference-preview span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.reference-preview strong {
+  color: var(--plum);
+  font-size: 13px;
+}
+
+.reference-preview span,
+.upload-status {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .form-error {
@@ -1031,6 +1120,7 @@ h3 {
   .hero {
     grid-template-columns: minmax(0, 1fr) minmax(260px, 380px);
     align-items: end;
+    padding-bottom: 26px;
   }
 
   .review-toolbar {

@@ -1,7 +1,7 @@
 const blobStoreName = "retro-graphic-novel-reviews";
 const blobKey = "shared-board";
 const maxNotesLength = 5000;
-const maxReferenceEncodedLength = 3 * 1024 * 1024;
+const maxReferenceEncodedLength = 28 * 1024 * 1024;
 
 const headers = {
   "Access-Control-Allow-Origin": "*",

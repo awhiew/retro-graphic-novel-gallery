@@ -3,7 +3,8 @@ const reviewEndpoint =
   window.RETRO_REVIEW_API ||
   "https://retro-graphic-novel-review-api.andrewhiew.workers.dev";
 const maxNotesLength = 5000;
-const maxReferenceEncodedLength = 3 * 1024 * 1024;
+const maxReferenceFileSize = 20 * 1024 * 1024;
+const maxReferenceEncodedLength = 28 * 1024 * 1024;
 const cloudSaveDelay = 500;
 
 const groupDirections = {
@@ -78,6 +79,9 @@ const masterNotesList = document.querySelector("#master-notes-list");
 const referenceForm = document.querySelector("#reference-form");
 const referenceFile = document.querySelector("#reference-file");
 const referenceCaption = document.querySelector("#reference-caption");
+const referenceSave = document.querySelector("#reference-save");
+const referencePreview = document.querySelector("#reference-preview");
+const referenceStatus = document.querySelector("#reference-status");
 const referenceError = document.querySelector("#reference-error");
 const referenceList = document.querySelector("#reference-list");
 const lightbox = document.querySelector("#lightbox");
@@ -93,6 +97,8 @@ let activeSort = "original";
 let cloudTimer = 0;
 let pendingCloudFiles = new Set();
 let pendingFullCloudSave = false;
+let selectedReferencePreviewUrl = "";
+let isUploadingReference = false;
 
 const filters = {
   all: () => true,
@@ -172,6 +178,7 @@ function bindControls() {
     event.preventDefault();
     uploadReference();
   });
+  referenceFile.addEventListener("change", updateReferencePreview);
 
   lightboxClose.addEventListener("click", closeLightbox);
   lightbox.addEventListener("click", (event) => {
@@ -409,8 +416,8 @@ function createImageNoteThread(item, review) {
   form.innerHTML = `
     <label for="note-from-${escapeAttribute(slugId(item.file))}">From</label>
     <div class="from-picker" data-from-picker>
-      <button class="from-choice" type="button" data-from="Andrew">Andrew</button>
       <button class="from-choice" type="button" data-from="Hannah">Hannah</button>
+      <button class="from-choice" type="button" data-from="Andrew">Andrew</button>
       <input id="note-from-${escapeAttribute(slugId(item.file))}" type="hidden" value="Hannah">
     </div>
     <label for="note-${escapeAttribute(slugId(item.file))}">New note</label>
@@ -582,7 +589,9 @@ function updateRating(file, rating) {
 }
 
 async function uploadReference() {
+  if (isUploadingReference) return;
   referenceError.textContent = "";
+  setReferenceUploadStatus("");
   const file = referenceFile.files && referenceFile.files[0];
   if (!file) {
     referenceError.textContent = "Choose an image before saving.";
@@ -592,13 +601,15 @@ async function uploadReference() {
     referenceError.textContent = "Reference uploads must be image files.";
     return;
   }
-  if (file.size > 2 * 1024 * 1024) {
-    referenceError.textContent = "That image is too large. Please upload one under 2 MB.";
+  if (file.size > maxReferenceFileSize) {
+    referenceError.textContent = "That image is too large. Please upload one under 20 MB.";
     return;
   }
 
+  setReferenceUploadState(true, "Reading image...");
   try {
     const dataUrl = await readFileAsDataUrl(file);
+    setReferenceUploadStatus("Saving upload...");
     if (!isValidReferenceDataUrl(dataUrl)) {
       referenceError.textContent = "That image is too large or not a supported image data URL.";
       return;
@@ -612,15 +623,79 @@ async function uploadReference() {
       createdAt: now,
       caption: referenceCaption.value.trim().slice(0, 180)
     };
+    await saveReferenceToCloud(reference);
     boardState.references = mergeById(boardState.references, [reference]);
+    saveBoardState();
     referenceFile.value = "";
     referenceCaption.value = "";
-    saveBoardState();
+    clearReferencePreview();
+    setReferenceUploadStatus("");
     render();
-    saveFullBoardToCloud();
   } catch (error) {
-    referenceError.textContent = "The image could not be read. Try a different file.";
+    setCloudStatus("Cloud unavailable");
+    referenceError.textContent = "The image could not be uploaded. Try again or choose a smaller file.";
+  } finally {
+    setReferenceUploadState(false);
   }
+}
+
+function updateReferencePreview() {
+  referenceError.textContent = "";
+  setReferenceUploadStatus("");
+  clearReferencePreview();
+  const file = referenceFile.files && referenceFile.files[0];
+  if (!file) return;
+  if (!file.type || !file.type.startsWith("image/")) {
+    referenceError.textContent = "Reference uploads must be image files.";
+    return;
+  }
+  if (file.size > maxReferenceFileSize) {
+    referenceError.textContent = "That image is too large. Please upload one under 20 MB.";
+    return;
+  }
+  selectedReferencePreviewUrl = URL.createObjectURL(file);
+  referencePreview.innerHTML = `
+    <img src="${escapeAttribute(selectedReferencePreviewUrl)}" alt="">
+    <div>
+      <strong>${escapeHtml(file.name || "Selected image")}</strong>
+      <span>${escapeHtml(formatFileSize(file.size))}</span>
+    </div>
+  `;
+  referencePreview.hidden = false;
+}
+
+function clearReferencePreview() {
+  if (selectedReferencePreviewUrl) URL.revokeObjectURL(selectedReferencePreviewUrl);
+  selectedReferencePreviewUrl = "";
+  referencePreview.innerHTML = "";
+  referencePreview.hidden = true;
+}
+
+function setReferenceUploadState(isSaving, message = "") {
+  isUploadingReference = isSaving;
+  referenceForm.classList.toggle("is-saving", isSaving);
+  referenceSave.disabled = isSaving;
+  referenceFile.disabled = isSaving;
+  referenceCaption.disabled = isSaving;
+  referenceSave.textContent = isSaving ? "Saving..." : "Save";
+  setReferenceUploadStatus(message);
+}
+
+function setReferenceUploadStatus(message) {
+  if (referenceStatus) referenceStatus.textContent = message;
+}
+
+async function saveReferenceToCloud(reference) {
+  setCloudStatus("Saving");
+  const response = await fetch(reviewEndpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "uploadReference", reference })
+  });
+  if (!response.ok) throw new Error(`Reference upload returned ${response.status}`);
+  const data = await response.json();
+  mergeCloudBoard(normalizeBoardState(data));
+  setCloudStatus("Cloud saved");
 }
 
 function readFileAsDataUrl(file) {
@@ -912,6 +987,13 @@ function getSortedByCreatedAt(items) {
 function isValidReferenceDataUrl(dataUrl) {
   return /^data:image\/[a-z0-9.+-]+;base64,[a-z0-9+/=]+$/i.test(dataUrl) &&
     dataUrl.length <= maxReferenceEncodedLength;
+}
+
+function formatFileSize(bytes) {
+  const size = Number(bytes) || 0;
+  if (size >= 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+  if (size >= 1024) return `${Math.round(size / 1024)} KB`;
+  return `${size} bytes`;
 }
 
 function setCloudStatus(message) {

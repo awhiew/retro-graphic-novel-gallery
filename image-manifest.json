@@ -273,7 +273,7 @@
   },
   {
     "file": "assets/images/36-world_building_01_comet_cafe_owner.png",
-    "title": "Comet Café Owner",
+    "title": "Comet Caf\u00e9 Owner",
     "group": "World-Building Characters",
     "rating": 0,
     "notes": ""
@@ -340,5 +340,125 @@
     "group": "World-Building Characters",
     "rating": 0,
     "notes": ""
+  },
+  {
+    "file": "assets/images/46-world_female_01_comet_cartographer.png",
+    "title": "Comet Cartographer",
+    "group": "Female World-Building Characters",
+    "rating": 0,
+    "notes": "",
+    "direction": "Review how this female world-building role expands the graphic novel universe, setting language, activity, costume system, and recurring visual rules."
+  },
+  {
+    "file": "assets/images/47-world_female_02_asteroid_greenhouse_keeper.png",
+    "title": "Asteroid Greenhouse Keeper",
+    "group": "Female World-Building Characters",
+    "rating": 0,
+    "notes": "",
+    "direction": "Review how this female world-building role expands the graphic novel universe, setting language, activity, costume system, and recurring visual rules."
+  },
+  {
+    "file": "assets/images/48-world_female_03_lunar_radio_dispatcher.png",
+    "title": "Lunar Radio Dispatcher",
+    "group": "Female World-Building Characters",
+    "rating": 0,
+    "notes": "",
+    "direction": "Review how this female world-building role expands the graphic novel universe, setting language, activity, costume system, and recurring visual rules."
+  },
+  {
+    "file": "assets/images/49-world_female_04_starport_customs_officer.png",
+    "title": "Starport Customs Officer",
+    "group": "Female World-Building Characters",
+    "rating": 0,
+    "notes": "",
+    "direction": "Review how this female world-building role expands the graphic novel universe, setting language, activity, costume system, and recurring visual rules."
+  },
+  {
+    "file": "assets/images/50-world_female_05_nebula_tea_house_host.png",
+    "title": "Nebula Tea House Host",
+    "group": "Female World-Building Characters",
+    "rating": 0,
+    "notes": "",
+    "direction": "Review how this female world-building role expands the graphic novel universe, setting language, activity, costume system, and recurring visual rules."
+  },
+  {
+    "file": "assets/images/51-world_female_06_meteor_race_mechanic.png",
+    "title": "Meteor Race Mechanic",
+    "group": "Female World-Building Characters",
+    "rating": 0,
+    "notes": "",
+    "direction": "Review how this female world-building role expands the graphic novel universe, setting language, activity, costume system, and recurring visual rules."
+  },
+  {
+    "file": "assets/images/52-world_female_07_orbital_newspaper_editor.png",
+    "title": "Orbital Newspaper Editor",
+    "group": "Female World-Building Characters",
+    "rating": 0,
+    "notes": "",
+    "direction": "Review how this female world-building role expands the graphic novel universe, setting language, activity, costume system, and recurring visual rules."
+  },
+  {
+    "file": "assets/images/53-world_female_08_planetarium_fashion_archivist.png",
+    "title": "Planetarium Fashion Archivist",
+    "group": "Female World-Building Characters",
+    "rating": 0,
+    "notes": "",
+    "direction": "Review how this female world-building role expands the graphic novel universe, setting language, activity, costume system, and recurring visual rules."
+  },
+  {
+    "file": "assets/images/54-world_female_09_space_elevator_operator.png",
+    "title": "Space Elevator Operator",
+    "group": "Female World-Building Characters",
+    "rating": 0,
+    "notes": "",
+    "direction": "Review how this female world-building role expands the graphic novel universe, setting language, activity, costume system, and recurring visual rules."
+  },
+  {
+    "file": "assets/images/55-world_female_10_alien_market_noodle_chef.png",
+    "title": "Alien Market Noodle Chef",
+    "group": "Female World-Building Characters",
+    "rating": 0,
+    "notes": "",
+    "direction": "Review how this female world-building role expands the graphic novel universe, setting language, activity, costume system, and recurring visual rules."
+  },
+  {
+    "file": "assets/images/56-world_female_11_moon_hotel_concierge.png",
+    "title": "Moon Hotel Concierge",
+    "group": "Female World-Building Characters",
+    "rating": 0,
+    "notes": "",
+    "direction": "Review how this female world-building role expands the graphic novel universe, setting language, activity, costume system, and recurring visual rules."
+  },
+  {
+    "file": "assets/images/57-world_female_12_stellar_theatre_lighting_designer.png",
+    "title": "Stellar Theatre Lighting Designer",
+    "group": "Female World-Building Characters",
+    "rating": 0,
+    "notes": "",
+    "direction": "Review how this female world-building role expands the graphic novel universe, setting language, activity, costume system, and recurring visual rules."
+  },
+  {
+    "file": "assets/images/58-world_female_13_vintage_robot_repair_artist.png",
+    "title": "Vintage Robot Repair Artist",
+    "group": "Female World-Building Characters",
+    "rating": 0,
+    "notes": "",
+    "direction": "Review how this female world-building role expands the graphic novel universe, setting language, activity, costume system, and recurring visual rules."
+  },
+  {
+    "file": "assets/images/59-world_female_14_interstellar_postmistress.png",
+    "title": "Interstellar Postmistress",
+    "group": "Female World-Building Characters",
+    "rating": 0,
+    "notes": "",
+    "direction": "Review how this female world-building role expands the graphic novel universe, setting language, activity, costume system, and recurring visual rules."
+  },
+  {
+    "file": "assets/images/60-world_female_15_saturn_ring_weather_scientist.png",
+    "title": "Saturn Ring Weather Scientist",
+    "group": "Female World-Building Characters",
+    "rating": 0,
+    "notes": "",
+    "direction": "Review how this female world-building role expands the graphic novel universe, setting language, activity, costume system, and recurring visual rules."
   }
 ]

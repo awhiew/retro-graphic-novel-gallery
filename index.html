@@ -73,8 +73,8 @@
             <form id="master-note-form" class="note-form" hidden>
               <label for="master-note-from">From</label>
               <div class="from-picker" data-from-picker>
-                <button class="from-choice" type="button" data-from="Andrew">Andrew</button>
                 <button class="from-choice" type="button" data-from="Hannah">Hannah</button>
+                <button class="from-choice" type="button" data-from="Andrew">Andrew</button>
                 <input id="master-note-from" type="hidden" value="Hannah">
               </div>
               <label for="master-note-text">New master note</label>
@@ -97,8 +97,10 @@
               <label class="file-picker" for="reference-file">Upload reference</label>
               <input id="reference-file" type="file" accept="image/*">
               <input id="reference-caption" type="text" maxlength="180" placeholder="Optional caption">
-              <button class="primary-action" type="submit">Save</button>
+              <button id="reference-save" class="primary-action" type="submit">Save</button>
             </form>
+            <div id="reference-preview" class="reference-preview" hidden></div>
+            <p id="reference-status" class="upload-status" aria-live="polite"></p>
             <p id="reference-error" class="form-error" aria-live="polite"></p>
             <div id="reference-list" class="reference-list" aria-live="polite"></div>
           </div>
