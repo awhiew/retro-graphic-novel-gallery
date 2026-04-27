@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#19151a">
+    <meta
+      name="description"
+      content="Roxy Vega retro graphic novel review gallery with ratings, notes, filters, and creative direction."
+    >
+    <title>Roxy Vega — Retro Graphic Novel Art Board</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand-mark" href="#top" aria-label="Roxy Vega art board home">
+        <span>Roxy Vega</span>
+        <small>Art Board</small>
+      </a>
+      <nav class="header-actions" aria-label="Page sections">
+        <a href="#direction">Direction</a>
+        <a href="#gallery">Gallery</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Character exploration review</p>
+          <h1 id="hero-title">Roxy Vega — Retro Graphic Novel Art Board</h1>
+          <p>
+            Cute-sexy pink-haired alien rebel pilot with an astronaut helmet cat:
+            a premium review board for choosing the strongest retro graphic novel lane.
+          </p>
+        </div>
+        <div class="hero-panel" aria-label="Project snapshot">
+          <span class="panel-kicker">Strongest route</span>
+          <strong>Retro pulp romance meets kawaii space noir</strong>
+          <p>Prioritize charm, danger, glossy pink attitude, cosmic mischief, and painterly anime-gouache softness.</p>
+        </div>
+      </section>
+
+      <section id="direction" class="direction-section" aria-labelledby="direction-title">
+        <div class="section-heading">
+          <p class="eyebrow">Creative direction</p>
+          <h2 id="direction-title">Lock the lead lane, then use the rest as supporting texture.</h2>
+        </div>
+        <div class="direction-grid">
+          <article class="direction-card lead">
+            <span>Cute-sexy retro pulp romance</span>
+            <h3>Lead with instant cover appeal.</h3>
+            <p>Pink hair, big eyes, dangerous curves, raygun confidence, and a flirtier 1960s pulp poster read should define the first impression.</p>
+          </article>
+          <article class="direction-card">
+            <span>Kawaii space noir</span>
+            <h3>Give the sweetness an edge.</h3>
+            <p>Neon shadows, starport trouble, bounty posters, scooter chases, and the helmet cat make the world feel ownable instead of generic.</p>
+          </article>
+          <article class="direction-card">
+            <span>Dreamy anime-gouache</span>
+            <h3>Keep it soft and lovable.</h3>
+            <p>Use painterly color, romantic skies, and creamy highlights to keep the character cute, expressive, and emotionally warm.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="gallery" class="gallery-section" aria-labelledby="gallery-title">
+        <div class="section-heading gallery-heading">
+          <div>
+            <p class="eyebrow">Review gallery</p>
+            <h2 id="gallery-title">Scrollable image board</h2>
+          </div>
+          <p id="gallery-status" class="gallery-status" aria-live="polite">Loading manifest…</p>
+        </div>
+
+        <div class="review-toolbar" aria-label="Gallery review tools">
+          <div class="toolbar-row">
+            <span class="toolbar-label">Filter</span>
+            <button class="tool-button active" type="button" data-filter="all">All</button>
+            <button class="tool-button" type="button" data-filter="five">5★</button>
+            <button class="tool-button" type="button" data-filter="fourPlus">4★+</button>
+            <button class="tool-button" type="button" data-filter="notes">Notes</button>
+            <button class="tool-button" type="button" data-filter="unrated">Unrated</button>
+          </div>
+          <div class="toolbar-row toolbar-actions">
+            <label class="toolbar-label" for="sort-select">Sort</label>
+            <select id="sort-select" class="review-select">
+              <option value="original">Manifest order</option>
+              <option value="ratingDesc">Highest rated</option>
+              <option value="ratingAsc">Lowest rated</option>
+              <option value="titleAsc">Title A-Z</option>
+              <option value="groupAsc">Group</option>
+            </select>
+            <button id="export-json" class="export-button" type="button">Export JSON</button>
+          </div>
+        </div>
+
+        <div id="summary-strip" class="summary-strip" aria-live="polite"></div>
+        <div id="gallery-board" class="gallery-board" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <div id="lightbox" class="lightbox" hidden>
+      <button class="lightbox-close" type="button" aria-label="Close image preview">Close</button>
+      <img src="" alt="">
+      <p id="lightbox-caption"></p>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

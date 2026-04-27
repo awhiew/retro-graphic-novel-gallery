@@ -1,0 +1,198 @@
+[
+  {
+    "file": "assets/images/00-original-reference.png",
+    "title": "Original Attached Reference",
+    "group": "Original Reference",
+    "rating": 5,
+    "notes": "Source image Andrew attached for this exploration \u2014 the visual DNA for the Roxy Vega retro graphic novel / alien rebel pilot direction."
+  },
+  {
+    "file": "assets/images/01-gpt_image2_roxy_vega_ref1_inspired.png",
+    "title": "Ref1 Inspired",
+    "group": "Reference Redos",
+    "rating": 4,
+    "notes": "Early GPT-Imagine 2 translation from the selected reference images; useful for core character direction and retro-pulp baseline."
+  },
+  {
+    "file": "assets/images/02-gpt_image2_roxy_vega_ref2_inspired.png",
+    "title": "Ref2 Inspired",
+    "group": "Reference Redos",
+    "rating": 4,
+    "notes": "Early GPT-Imagine 2 translation from the selected reference images; useful for core character direction and retro-pulp baseline."
+  },
+  {
+    "file": "assets/images/03-gpt_image2_roxy_vega_ref3_inspired.png",
+    "title": "Ref3 Inspired",
+    "group": "Reference Redos",
+    "rating": 4,
+    "notes": "Early GPT-Imagine 2 translation from the selected reference images; useful for core character direction and retro-pulp baseline."
+  },
+  {
+    "file": "assets/images/04-gpt_image2_roxy_vega_ref4_inspired.png",
+    "title": "Ref4 Inspired",
+    "group": "Reference Redos",
+    "rating": 4,
+    "notes": "Early GPT-Imagine 2 translation from the selected reference images; useful for core character direction and retro-pulp baseline."
+  },
+  {
+    "file": "assets/images/05-roxy_vega_01_cosmic_art_nouveau.png",
+    "title": "Cosmic Art Nouveau",
+    "group": "Bold Style Explorations",
+    "rating": 3,
+    "notes": "Broader graphic-novel style range; useful for deciding how stylised or premium the world should feel."
+  },
+  {
+    "file": "assets/images/06-roxy_vega_02_moebius_desert_sci_fi.png",
+    "title": "Moebius Desert SCI FI",
+    "group": "Bold Style Explorations",
+    "rating": 3,
+    "notes": "Broader graphic-novel style range; useful for deciding how stylised or premium the world should feel."
+  },
+  {
+    "file": "assets/images/07-roxy_vega_03_heavy_metal_magazine.png",
+    "title": "Heavy Metal Magazine",
+    "group": "Bold Style Explorations",
+    "rating": 3,
+    "notes": "Broader graphic-novel style range; useful for deciding how stylised or premium the world should feel."
+  },
+  {
+    "file": "assets/images/08-roxy_vega_04_japanese_gekiga_noir.png",
+    "title": "Japanese Gekiga Noir",
+    "group": "Bold Style Explorations",
+    "rating": 3,
+    "notes": "Broader graphic-novel style range; useful for deciding how stylised or premium the world should feel."
+  },
+  {
+    "file": "assets/images/09-roxy_vega_05_luxury_fashion_comic.png",
+    "title": "Luxury Fashion Comic",
+    "group": "Bold Style Explorations",
+    "rating": 3,
+    "notes": "Broader graphic-novel style range; useful for deciding how stylised or premium the world should feel."
+  },
+  {
+    "file": "assets/images/10-roxy_vega_06_biopunk_alien_jungle.png",
+    "title": "Biopunk Alien Jungle",
+    "group": "Bold Style Explorations",
+    "rating": 3,
+    "notes": "Broader graphic-novel style range; useful for deciding how stylised or premium the world should feel."
+  },
+  {
+    "file": "assets/images/11-roxy_vega_07_atomic_pop_surreal.png",
+    "title": "Atomic Pop Surreal",
+    "group": "Bold Style Explorations",
+    "rating": 3,
+    "notes": "Broader graphic-novel style range; useful for deciding how stylised or premium the world should feel."
+  },
+  {
+    "file": "assets/images/12-roxy_vega_08_blacklight_velvet_pulp.png",
+    "title": "Blacklight Velvet Pulp",
+    "group": "Bold Style Explorations",
+    "rating": 3,
+    "notes": "Broader graphic-novel style range; useful for deciding how stylised or premium the world should feel."
+  },
+  {
+    "file": "assets/images/13-roxy_vega_09_risograph_punk_comic.png",
+    "title": "Risograph Punk Comic",
+    "group": "Bold Style Explorations",
+    "rating": 3,
+    "notes": "Broader graphic-novel style range; useful for deciding how stylised or premium the world should feel."
+  },
+  {
+    "file": "assets/images/14-roxy_vega_10_mythic_space_western.png",
+    "title": "Mythic Space Western",
+    "group": "Bold Style Explorations",
+    "rating": 3,
+    "notes": "Broader graphic-novel style range; useful for deciding how stylised or premium the world should feel."
+  },
+  {
+    "file": "assets/images/15-roxy_vega_01_cute_retro_pulp_romance.png",
+    "title": "Cute Retro Pulp Romance",
+    "group": "Cute-Sexy Style Anchors",
+    "rating": 5,
+    "notes": "Top lane candidate: cute retro pulp romance, pretty face, commercial and charming."
+  },
+  {
+    "file": "assets/images/16-roxy_vega_02_kawaii_space_noir.png",
+    "title": "Kawaii Space Noir",
+    "group": "Cute-Sexy Style Anchors",
+    "rating": 5,
+    "notes": "Strong blend of cute and attitude; probably one of the most ownable directions."
+  },
+  {
+    "file": "assets/images/17-roxy_vega_03_dreamy_anime_gouache.png",
+    "title": "Dreamy Anime Gouache",
+    "group": "Cute-Sexy Style Anchors",
+    "rating": 5,
+    "notes": "Softest and most lovable version while still feeling graphic-novel ready."
+  },
+  {
+    "file": "assets/images/18-roxy_vega_01_space_diner.png",
+    "title": "Space Diner",
+    "group": "Cute-Sexy Scene Variations",
+    "rating": 5,
+    "notes": "Great world-building scene: playful, cute, and instantly communicates tone."
+  },
+  {
+    "file": "assets/images/19-roxy_vega_02_raygun_scooter.png",
+    "title": "Raygun Scooter",
+    "group": "Cute-Sexy Scene Variations",
+    "rating": 5,
+    "notes": "Best adventure/action energy; strong for the character as a recurring lead."
+  },
+  {
+    "file": "assets/images/20-roxy_vega_03_starship_cockpit.png",
+    "title": "Starship Cockpit",
+    "group": "Cute-Sexy Scene Variations",
+    "rating": 4,
+    "notes": "Narrative/splash-page tests showing how the character behaves across the world with her helmet cat."
+  },
+  {
+    "file": "assets/images/21-roxy_vega_04_alien_beach.png",
+    "title": "Alien Beach",
+    "group": "Cute-Sexy Scene Variations",
+    "rating": 4,
+    "notes": "Narrative/splash-page tests showing how the character behaves across the world with her helmet cat."
+  },
+  {
+    "file": "assets/images/22-roxy_vega_05_moon_lounge.png",
+    "title": "Moon Lounge",
+    "group": "Cute-Sexy Scene Variations",
+    "rating": 4,
+    "notes": "Useful glamorous/nightlife-coded world angle; strong mood reference."
+  },
+  {
+    "file": "assets/images/23-roxy_vega_06_galaxy_map_room.png",
+    "title": "Galaxy Map Room",
+    "group": "Cute-Sexy Scene Variations",
+    "rating": 4,
+    "notes": "Narrative/splash-page tests showing how the character behaves across the world with her helmet cat."
+  },
+  {
+    "file": "assets/images/24-roxy_vega_07_space_mechanic.png",
+    "title": "Space Mechanic",
+    "group": "Cute-Sexy Scene Variations",
+    "rating": 4,
+    "notes": "Good tomboy/badass layer without losing charm."
+  },
+  {
+    "file": "assets/images/25-roxy_vega_08_alien_garden.png",
+    "title": "Alien Garden",
+    "group": "Cute-Sexy Scene Variations",
+    "rating": 4,
+    "notes": "Narrative/splash-page tests showing how the character behaves across the world with her helmet cat."
+  },
+  {
+    "file": "assets/images/26-roxy_vega_09_bounty_poster_chase.png",
+    "title": "Bounty Poster Chase",
+    "group": "Cute-Sexy Scene Variations",
+    "rating": 4,
+    "notes": "Narrative/splash-page tests showing how the character behaves across the world with her helmet cat."
+  },
+  {
+    "file": "assets/images/27-roxy_vega_10_first_issue_hero.png",
+    "title": "First Issue Hero",
+    "group": "Cute-Sexy Scene Variations",
+    "rating": 4,
+    "notes": "Narrative/splash-page tests showing how the character behaves across the world with her helmet cat."
+  }
+]
